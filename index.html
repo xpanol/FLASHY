@@ -31,15 +31,20 @@
 
 body{
     margin:0;
+    min-height:100vh;
     background:var(--black);
     color:#fff;
     font-size:var(--fs-base);
 }
 
 .wrap{
+    min-height:100vh;
     max-width:860px;
     margin:0 auto;
-    padding:40px 24px;
+    padding:56px 24px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
 }
 
 .topbar{
@@ -135,10 +140,28 @@ body{
     font-size:var(--fs-ui);
 }
 
+.lang.en,
+.english-color{
+    color:var(--sector);
+}
+
+.lang.es,
+.spanish-color{
+    color:var(--brand);
+}
+
 .term{
     font-size:var(--fs-card);
     text-align:center;
     line-height:1.15;
+}
+
+.term.en{
+    color:var(--sector);
+}
+
+.term.es{
+    color:var(--brand);
 }
 
 .hint{
@@ -187,8 +210,147 @@ button.active{
     color:#000;
 }
 
+#enEs{
+    color:var(--sector);
+}
+
+#esEn{
+    color:var(--brand);
+}
+
+#enEs:hover,
+#esEn:hover,
+#enEs.active,
+#esEn.active{
+    color:#000;
+}
+
 .hidden{
     display:none;
+}
+
+.home-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:38px;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:38px;
+    align-items:center;
+}
+
+.home-title{
+    color:var(--brand);
+    font-size:var(--fs-card);
+    line-height:1.1;
+    margin-bottom:20px;
+}
+
+.home-copy{
+    color:var(--sector);
+    line-height:1.35;
+    margin-bottom:0;
+}
+
+.home-copy p{
+    margin:0 0 16px;
+}
+
+.home-copy p:last-child{
+    margin-bottom:0;
+}
+
+.home-actions{
+    margin-top:34px;
+}
+
+.flash-preview{
+    position:relative;
+    min-height:260px;
+    isolation:isolate;
+}
+
+.preview-card{
+    position:absolute;
+    inset:22px 0 0 28px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:24px;
+    background:linear-gradient(145deg, #111, #020202);
+    border:2px solid var(--sector);
+    border-radius:12px;
+    box-shadow:0 0 0 1px rgba(177,140,255,0.25), 0 0 34px rgba(177,140,255,0.26);
+    cursor:pointer;
+    transition:transform 0.22s, border-color 0.22s, box-shadow 0.22s, background 0.22s;
+}
+
+.preview-card:hover{
+    border-color:var(--brand);
+    background:linear-gradient(145deg, #16110a, #050505);
+    box-shadow:0 0 0 2px rgba(248,172,16,0.35), 0 0 44px rgba(248,172,16,0.34), 0 0 36px rgba(177,140,255,0.2);
+    transform:translateY(-8px) rotate(-1deg);
+}
+
+.preview-card::before,
+.preview-card::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border:2px solid var(--border);
+    border-radius:12px;
+    background:#121212;
+    z-index:-1;
+    transition:transform 0.22s, border-color 0.22s, background 0.22s;
+}
+
+.preview-card::before{
+    border-color:rgba(248,172,16,0.68);
+    background:linear-gradient(145deg, #181008, #090909);
+    transform:translate(-18px,-18px) rotate(-5deg);
+}
+
+.preview-card::after{
+    border-color:rgba(177,140,255,0.68);
+    background:linear-gradient(145deg, #120f1d, #090909);
+    transform:translate(14px,14px) rotate(4deg);
+}
+
+.preview-card:hover::before{
+    transform:translate(-26px,-22px) rotate(-8deg);
+}
+
+.preview-card:hover::after{
+    transform:translate(22px,20px) rotate(7deg);
+}
+
+.preview-label{
+    color:var(--brand);
+    font-size:var(--fs-ui);
+}
+
+.preview-term{
+    font-size:28px;
+    text-align:center;
+    line-height:1.15;
+    color:var(--sector);
+}
+
+.preview-pair{
+    color:var(--brand);
+    text-align:center;
+}
+
+.match-heading{
+    color:var(--brand);
+    margin-bottom:8px;
+}
+
+.match-heading.en{
+    color:var(--sector);
 }
 
 .match-card{
@@ -221,16 +383,41 @@ button.active{
     gap:10px;
 }
 
+#englishList,
+#spanishList{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
 .match-item{
     width:100%;
     min-height:54px;
     text-align:left;
+    transition:background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.match-item[data-side="en"]{
+    color:var(--sector);
+}
+
+.match-item[data-side="es"]{
+    color:var(--brand);
+}
+
+.match-item:not(.matched):not(.wrong):hover,
+.match-item:not(.matched):not(.wrong):focus{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+    box-shadow:0 0 0 2px rgba(248,172,16,0.28), 0 0 24px rgba(248,172,16,0.24);
 }
 
 .match-item.selected{
     border-color:var(--brand);
     color:#000;
     background:var(--brand);
+    box-shadow:0 0 0 2px rgba(248,172,16,0.35), 0 0 26px rgba(248,172,16,0.3);
 }
 
 .match-item.matched{
@@ -279,6 +466,26 @@ button.active{
 
     .card-shell{
         margin-top:22px;
+    }
+
+    .wrap{
+        justify-content:flex-start;
+        padding-top:36px;
+        padding-bottom:36px;
+    }
+
+    .home-card{
+        grid-template-columns:1fr;
+        padding:28px;
+        gap:30px;
+    }
+
+    .flash-preview{
+        min-height:230px;
+    }
+
+    .preview-card{
+        inset:18px 8px 0 18px;
     }
 }
 
@@ -368,7 +575,31 @@ button.active{
     <div class="sector">Digital Marketing Flashcards</div>
 </div>
 
-<div id="flashMode">
+<div id="homeMode">
+    <div class="home-card">
+        <div>
+            <div class="home-title">Digital Marketing EN / ES</div>
+            <div class="home-copy">
+                <p><span class="english-color">English:</span> Practice 10 bilingual concepts, flip each card, then match every pair in the final exercise.</p>
+                <p><span class="spanish-color">Español:</span> Practica 10 conceptos bilingües, gira cada ficha y después une todas las parejas en el ejercicio final.</p>
+            </div>
+            <div class="controls home-actions">
+                <button onclick="startFlashcards()">Start flashcards</button>
+                <button onclick="showMatchExercise()">Final match</button>
+            </div>
+        </div>
+
+        <div class="flash-preview">
+            <div class="preview-card" onclick="startFlashcards()" role="button" tabindex="0" onkeydown="startFromPreview(event)">
+                <div class="preview-label">Flashcard</div>
+                <div class="preview-term">organic traffic</div>
+                <div class="preview-pair">tráfico orgánico</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="flashMode" class="hidden">
     <div class="meta">
         <div class="counter" id="counter"></div>
         <div class="direction">
@@ -395,6 +626,7 @@ button.active{
     <div class="controls">
         <button onclick="prevCard()">Previous</button>
         <button id="nextBtn" onclick="nextCard()">Next</button>
+        <button onclick="showHome()">Home</button>
     </div>
 </div>
 
@@ -403,13 +635,20 @@ button.active{
         <div class="match-title">Match the concepts / Une los conceptos</div>
         <div class="match-status" id="matchStatus"></div>
         <div class="match-grid">
-            <div class="match-column" id="englishList"></div>
-            <div class="match-column" id="spanishList"></div>
+            <div class="match-column">
+                <div class="match-heading en">English</div>
+                <div id="englishList"></div>
+            </div>
+            <div class="match-column">
+                <div class="match-heading">Español</div>
+                <div id="spanishList"></div>
+            </div>
         </div>
         <div class="match-complete" id="matchComplete"></div>
         <div class="controls">
             <button onclick="restartFlashcards()">Back to flashcards</button>
             <button onclick="startMatching()">Shuffle again</button>
+            <button onclick="showHome()">Home</button>
         </div>
     </div>
 </div>
@@ -461,14 +700,22 @@ function render(enterClass=""){
 
     if(direction==="en-es"){
         frontLang.textContent="English";
+        frontLang.className="lang en";
         frontTerm.textContent=card.en;
+        frontTerm.className="term en";
         backLang.textContent="Español";
+        backLang.className="lang es";
         backTerm.textContent=card.es;
+        backTerm.className="term es";
     }else{
         frontLang.textContent="Español";
+        frontLang.className="lang es";
         frontTerm.textContent=card.es;
+        frontTerm.className="term es";
         backLang.textContent="English";
+        backLang.className="lang en";
         backTerm.textContent=card.en;
+        backTerm.className="term en";
     }
 
     document.getElementById("enEs").classList.toggle("active", direction==="en-es");
@@ -521,7 +768,32 @@ function setDirection(value){
     render();
 }
 
+function startFromPreview(event){
+    if(event.key==="Enter" || event.key===" "){
+        event.preventDefault();
+        startFlashcards();
+    }
+}
+
+function showHome(){
+    document.getElementById("homeMode").classList.remove("hidden");
+    document.getElementById("flashMode").classList.add("hidden");
+    document.getElementById("matchMode").classList.add("hidden");
+}
+
+function startFlashcards(){
+    currentIndex=0;
+    selectedEnglish=null;
+    selectedSpanish=null;
+    matchedCount=0;
+    document.getElementById("homeMode").classList.add("hidden");
+    document.getElementById("matchMode").classList.add("hidden");
+    document.getElementById("flashMode").classList.remove("hidden");
+    render();
+}
+
 function showMatchExercise(){
+    document.getElementById("homeMode").classList.add("hidden");
     document.getElementById("flashMode").classList.add("hidden");
     document.getElementById("matchMode").classList.remove("hidden");
     startMatching();
@@ -529,6 +801,7 @@ function showMatchExercise(){
 
 function restartFlashcards(){
     currentIndex=0;
+    document.getElementById("homeMode").classList.add("hidden");
     document.getElementById("matchMode").classList.add("hidden");
     document.getElementById("flashMode").classList.remove("hidden");
     render();
