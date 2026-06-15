@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>XPAÑOL | Flashcards</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --black:#000;
+    --panel:#0b0b0b;
+    --border:#1f1f1f;
+    --brand:#F8AC10;
+    --sector:#b18cff;
+    --ok:#42ff87;
+    --bad:#ff2525;
+
+    --fs-base:20px;
+    --fs-logo:22px;
+    --fs-ui:20px;
+    --fs-card:34px;
+}
+
+*{
+    box-sizing:border-box;
+    font-family:'Special Elite', monospace !important;
+}
+
+body{
+    margin:0;
+    background:var(--black);
+    color:#fff;
+    font-size:var(--fs-base);
+}
+
+.wrap{
+    max-width:860px;
+    margin:0 auto;
+    padding:40px 24px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:30px;
+}
+
+.logo{
+    color:var(--brand);
+    font-size:var(--fs-logo);
+}
+
+.sector{
+    color:var(--sector);
+    font-size:var(--fs-ui);
+    text-align:right;
+}
+
+.card-shell{
+    perspective:1000px;
+    position:relative;
+    overflow:hidden;
+    border-radius:12px;
+    margin-top:18px;
+}
+
+.card-shell::after{
+    content:"";
+    position:absolute;
+    left:-35%;
+    top:50%;
+    width:170%;
+    height:4px;
+    background:linear-gradient(90deg, transparent, var(--brand), #fff, var(--sector), transparent);
+    box-shadow:0 0 26px var(--brand), 0 0 42px var(--sector);
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(-50%) scaleX(0);
+}
+
+.card-shell.portal-burst::after{
+    animation:portalBurst 0.72s ease forwards;
+}
+
+.flashcard{
+    position:relative;
+    min-height:260px;
+    border-radius:12px;
+    cursor:pointer;
+    transform-style:preserve-3d;
+    transition:transform 0.62s ease;
+}
+
+.flashcard.flipped{
+    transform:rotateY(180deg);
+}
+
+.flashcard.exit-next,
+.flashcard.exit-prev{
+    animation:portalOut 0.36s ease-in forwards;
+}
+
+.flashcard.enter-next,
+.flashcard.enter-prev{
+    animation:portalIn 0.58s cubic-bezier(.16,.95,.2,1) forwards;
+}
+
+.face{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    padding:28px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    backface-visibility:hidden;
+}
+
+.back{
+    transform:rotateY(180deg);
+    border-color:var(--sector);
+    box-shadow:0 0 34px rgba(177,140,255,0.28);
+}
+
+.lang{
+    color:var(--brand);
+    font-size:var(--fs-ui);
+}
+
+.term{
+    font-size:var(--fs-card);
+    text-align:center;
+    line-height:1.15;
+}
+
+.hint{
+    color:#aaa;
+    font-size:16px;
+    text-align:center;
+}
+
+.meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    margin:18px 0 34px;
+}
+
+.counter{
+    color:var(--sector);
+}
+
+.controls,
+.direction{
+    display:flex;
+    gap:10px;
+}
+
+.controls{
+    margin-top:28px;
+}
+
+button{
+    flex:1;
+    background:#000;
+    border:1px solid var(--border);
+    color:#fff;
+    padding:12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:var(--fs-ui);
+}
+
+button:hover,
+button.active{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+}
+
+.hidden{
+    display:none;
+}
+
+.match-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:22px;
+}
+
+.match-title{
+    color:var(--brand);
+    font-size:var(--fs-logo);
+    margin-bottom:10px;
+}
+
+.match-status{
+    color:var(--sector);
+    margin-bottom:18px;
+}
+
+.match-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+
+.match-column{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.match-item{
+    width:100%;
+    min-height:54px;
+    text-align:left;
+}
+
+.match-item.selected{
+    border-color:var(--brand);
+    color:#000;
+    background:var(--brand);
+}
+
+.match-item.matched{
+    border-color:var(--ok);
+    color:#000;
+    background:var(--ok);
+    cursor:default;
+}
+
+.match-item.wrong{
+    border-color:var(--bad);
+    color:#000;
+    background:var(--bad);
+    animation:shake 0.36s ease;
+}
+
+.match-complete{
+    margin-top:18px;
+    color:var(--ok);
+    min-height:28px;
+}
+
+@media (max-width:620px){
+    .topbar,
+    .meta,
+    .controls,
+    .direction{
+        flex-direction:column;
+    }
+
+    .sector{
+        text-align:left;
+    }
+
+    .term{
+        font-size:28px;
+    }
+
+    .match-grid{
+        grid-template-columns:1fr;
+    }
+
+    .meta{
+        margin-bottom:42px;
+    }
+
+    .card-shell{
+        margin-top:22px;
+    }
+}
+
+@keyframes shake{
+    0%{transform:translateX(0);}
+    25%{transform:translateX(-8px);}
+    50%{transform:translateX(8px);}
+    75%{transform:translateX(-5px);}
+    100%{transform:translateX(0);}
+}
+
+@keyframes portalOut{
+    0%{
+        opacity:1;
+        filter:blur(0);
+        transform:translateY(0) scale(1);
+        clip-path:inset(0 0 0 0 round 12px);
+    }
+    60%{
+        opacity:1;
+        filter:blur(1px);
+        transform:translateY(0) scaleX(1.04) scaleY(0.2);
+        clip-path:inset(39% 0 39% 0 round 12px);
+    }
+    100%{
+        opacity:0;
+        filter:blur(9px);
+        transform:translateY(0) scaleX(0.18) scaleY(0.035);
+        clip-path:inset(48% 0 48% 0 round 12px);
+    }
+}
+
+@keyframes portalIn{
+    0%{
+        opacity:0;
+        filter:blur(10px);
+        transform:translateY(0) scaleX(0.16) scaleY(0.035);
+        clip-path:inset(48% 0 48% 0 round 12px);
+    }
+    42%{
+        opacity:1;
+        filter:blur(2px);
+        transform:translateY(0) scaleX(1.08) scaleY(0.24);
+        clip-path:inset(38% 0 38% 0 round 12px);
+    }
+    76%{
+        opacity:1;
+        filter:blur(0);
+        transform:translateY(0) scaleX(1.03) scaleY(1.05);
+        clip-path:inset(0 0 0 0 round 12px);
+    }
+    100%{
+        opacity:1;
+        filter:blur(0);
+        transform:translateY(0) scale(1);
+        clip-path:inset(0 0 0 0 round 12px);
+    }
+}
+
+@keyframes portalBurst{
+    0%{
+        opacity:0;
+        transform:translateY(-50%) scaleX(0);
+    }
+    28%{
+        opacity:1;
+        transform:translateY(-50%) scaleX(1);
+    }
+    55%{
+        opacity:0.9;
+        transform:translateY(-50%) scaleX(0.42);
+    }
+    100%{
+        opacity:0;
+        transform:translateY(-50%) scaleX(0);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="topbar">
+    <div class="logo">XPAÑOL</div>
+    <div class="sector">Digital Marketing Flashcards</div>
+</div>
+
+<div id="flashMode">
+    <div class="meta">
+        <div class="counter" id="counter"></div>
+        <div class="direction">
+            <button id="enEs" onclick="setDirection('en-es')">EN → ES</button>
+            <button id="esEn" onclick="setDirection('es-en')">ES → EN</button>
+        </div>
+    </div>
+
+    <div class="card-shell">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="face front">
+                <div class="lang" id="frontLang"></div>
+                <div class="term" id="frontTerm"></div>
+                <div class="hint">Click to flip</div>
+            </div>
+            <div class="face back">
+                <div class="lang" id="backLang"></div>
+                <div class="term" id="backTerm"></div>
+                <div class="hint">Click to return</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="prevCard()">Previous</button>
+        <button id="nextBtn" onclick="nextCard()">Next</button>
+    </div>
+</div>
+
+<div id="matchMode" class="hidden">
+    <div class="match-card">
+        <div class="match-title">Match the concepts / Une los conceptos</div>
+        <div class="match-status" id="matchStatus"></div>
+        <div class="match-grid">
+            <div class="match-column" id="englishList"></div>
+            <div class="match-column" id="spanishList"></div>
+        </div>
+        <div class="match-complete" id="matchComplete"></div>
+        <div class="controls">
+            <button onclick="restartFlashcards()">Back to flashcards</button>
+            <button onclick="startMatching()">Shuffle again</button>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+const cards=[
+    {en:"conversion rate", es:"tasa de conversión"},
+    {en:"organic traffic", es:"tráfico orgánico"},
+    {en:"landing page", es:"página de aterrizaje"},
+    {en:"target audience", es:"público objetivo"},
+    {en:"email campaign", es:"campaña de email"},
+    {en:"search ranking", es:"posicionamiento en buscadores"},
+    {en:"brand awareness", es:"reconocimiento de marca"},
+    {en:"bounce rate", es:"tasa de rebote"},
+    {en:"lead magnet", es:"imán de leads"},
+    {en:"cost per click", es:"coste por clic"}
+];
+
+let currentIndex=0;
+let direction="en-es";
+let isFlipped=false;
+let isChanging=false;
+let selectedEnglish=null;
+let selectedSpanish=null;
+let matchedCount=0;
+
+function shuffleList(list){
+    return [...list].sort(()=>Math.random()-0.5);
+}
+
+function render(enterClass=""){
+    const card=cards[currentIndex];
+    const frontLang=document.getElementById("frontLang");
+    const backLang=document.getElementById("backLang");
+    const frontTerm=document.getElementById("frontTerm");
+    const backTerm=document.getElementById("backTerm");
+    const counter=document.getElementById("counter");
+    const flashcard=document.getElementById("flashcard");
+
+    isFlipped=false;
+    flashcard.className="flashcard";
+    if(enterClass){
+        flashcard.classList.add(enterClass);
+    }
+    counter.textContent=`${currentIndex+1} / ${cards.length}`;
+    document.getElementById("nextBtn").textContent=currentIndex===cards.length-1 ? "Final match" : "Next";
+
+    if(direction==="en-es"){
+        frontLang.textContent="English";
+        frontTerm.textContent=card.en;
+        backLang.textContent="Español";
+        backTerm.textContent=card.es;
+    }else{
+        frontLang.textContent="Español";
+        frontTerm.textContent=card.es;
+        backLang.textContent="English";
+        backTerm.textContent=card.en;
+    }
+
+    document.getElementById("enEs").classList.toggle("active", direction==="en-es");
+    document.getElementById("esEn").classList.toggle("active", direction==="es-en");
+}
+
+function flipCard(){
+    isFlipped=!isFlipped;
+    document.getElementById("flashcard").classList.toggle("flipped", isFlipped);
+}
+
+function nextCard(){
+    if(currentIndex===cards.length-1){
+        showMatchExercise();
+        return;
+    }
+    changeCard(1);
+}
+
+function prevCard(){
+    changeCard(-1);
+}
+
+function changeCard(step){
+    if(isChanging) return;
+
+    isChanging=true;
+    const shell=document.querySelector(".card-shell");
+    const flashcard=document.getElementById("flashcard");
+    shell.classList.add("portal-burst");
+    flashcard.classList.remove("flipped");
+    isFlipped=false;
+    flashcard.classList.add(step > 0 ? "exit-next" : "exit-prev");
+
+    setTimeout(()=>{
+        currentIndex=(currentIndex+step+cards.length)%cards.length;
+        render(step > 0 ? "enter-next" : "enter-prev");
+    },440);
+
+    setTimeout(()=>{
+        document.getElementById("flashcard").classList.remove("enter-next","enter-prev");
+        shell.classList.remove("portal-burst");
+        isChanging=false;
+    },980);
+}
+
+function setDirection(value){
+    if(isChanging) return;
+    direction=value;
+    render();
+}
+
+function showMatchExercise(){
+    document.getElementById("flashMode").classList.add("hidden");
+    document.getElementById("matchMode").classList.remove("hidden");
+    startMatching();
+}
+
+function restartFlashcards(){
+    currentIndex=0;
+    document.getElementById("matchMode").classList.add("hidden");
+    document.getElementById("flashMode").classList.remove("hidden");
+    render();
+}
+
+function startMatching(){
+    selectedEnglish=null;
+    selectedSpanish=null;
+    matchedCount=0;
+
+    const englishList=document.getElementById("englishList");
+    const spanishList=document.getElementById("spanishList");
+    englishList.innerHTML="";
+    spanishList.innerHTML="";
+    document.getElementById("matchComplete").textContent="";
+    updateMatchStatus();
+
+    shuffleList(cards).forEach((card)=>{
+        englishList.innerHTML+=`
+            <button class="match-item" data-side="en" data-key="${card.en}" onclick="selectMatch(this)">
+                ${card.en}
+            </button>
+        `;
+    });
+
+    shuffleList(cards).forEach((card)=>{
+        spanishList.innerHTML+=`
+            <button class="match-item" data-side="es" data-key="${card.en}" onclick="selectMatch(this)">
+                ${card.es}
+            </button>
+        `;
+    });
+}
+
+function selectMatch(el){
+    if(el.classList.contains("matched")) return;
+
+    const side=el.dataset.side;
+    clearWrong();
+
+    if(side==="en"){
+        if(selectedEnglish) selectedEnglish.classList.remove("selected");
+        selectedEnglish=el;
+    }else{
+        if(selectedSpanish) selectedSpanish.classList.remove("selected");
+        selectedSpanish=el;
+    }
+
+    el.classList.add("selected");
+
+    if(selectedEnglish && selectedSpanish){
+        checkMatch();
+    }
+}
+
+function checkMatch(){
+    const isCorrect=selectedEnglish.dataset.key===selectedSpanish.dataset.key;
+
+    if(isCorrect){
+        selectedEnglish.classList.remove("selected");
+        selectedSpanish.classList.remove("selected");
+        selectedEnglish.classList.add("matched");
+        selectedSpanish.classList.add("matched");
+        matchedCount++;
+        selectedEnglish=null;
+        selectedSpanish=null;
+        updateMatchStatus();
+
+        if(matchedCount===cards.length){
+            document.getElementById("matchComplete").textContent="Complete. All concepts matched.";
+        }
+    }else{
+        selectedEnglish.classList.add("wrong");
+        selectedSpanish.classList.add("wrong");
+        setTimeout(()=>{
+            selectedEnglish.classList.remove("selected","wrong");
+            selectedSpanish.classList.remove("selected","wrong");
+            selectedEnglish=null;
+            selectedSpanish=null;
+        },420);
+    }
+}
+
+function clearWrong(){
+    document.querySelectorAll(".match-item.wrong").forEach((item)=>item.classList.remove("wrong"));
+}
+
+function updateMatchStatus(){
+    document.getElementById("matchStatus").textContent=`${matchedCount} / ${cards.length} matched`;
+}
+
+render();
+</script>
+
+</body>
+</html>
