@@ -19,8 +19,8 @@
     --bad:#ff2525;
 
     --fs-base:20px;
-    --fs-logo:22px;
-    --fs-ui:20px;
+    --fs-logo:20px;
+    --fs-ui:30px;
     --fs-card:34px;
 }
 
@@ -59,10 +59,21 @@ body{
     font-size:var(--fs-logo);
 }
 
+.logo img{
+    width:120px;
+    height:auto;
+    display:block;
+}
+
 .sector{
     color:var(--sector);
     font-size:var(--fs-ui);
     text-align:right;
+}
+
+.sector-es{
+    color:var(--brand);
+    margin-top:8px;
 }
 
 .card-shell{
@@ -70,7 +81,7 @@ body{
     position:relative;
     overflow:hidden;
     border-radius:12px;
-    margin-top:18px;
+    margin-top:40px;
 }
 
 .card-shell::after{
@@ -136,17 +147,15 @@ body{
 }
 
 .lang{
-    color:var(--brand);
-    font-size:var(--fs-ui);
+    font-size:42px;
+    line-height:1;
 }
 
-.lang.en,
-.english-color{
+.lang.en{
     color:var(--sector);
 }
 
-.lang.es,
-.spanish-color{
+.lang.es{
     color:var(--brand);
 }
 
@@ -238,13 +247,6 @@ button.active{
     grid-template-columns:1.05fr 0.95fr;
     gap:38px;
     align-items:center;
-}
-
-.home-title{
-    color:var(--brand);
-    font-size:var(--fs-card);
-    line-height:1.1;
-    margin-bottom:20px;
 }
 
 .home-copy{
@@ -571,14 +573,18 @@ button.active{
 <div class="wrap">
 
 <div class="topbar">
-    <div class="logo">XPAÑOL</div>
-    <div class="sector">DIGITAL MARKETING FLASHCARDS</div>
+    <div class="logo">
+        <img src="logo.png" alt="XPAÑOL">
+    </div>
+    <div class="sector">
+        <div>DIGITAL MARKETING FLASHCARDS</div>
+        <div class="sector-es">FLASHCARDS DE MARKETING DIGITAL</div>
+    </div>
 </div>
 
 <div id="homeMode">
     <div class="home-card">
         <div>
-            <div class="home-title">DIGITAL MARKETING EN | ES</div>
             <div class="home-copy">
                 <p><span class="english-color">English:</span> Practice 10 bilingual concepts, flip each card, then match every pair in the final exercise.</p>
                 <p><span class="spanish-color">Español: Practica 10 conceptos bilingües, gira cada ficha y después une todas las parejas en el ejercicio final.</span></p>
@@ -699,20 +705,20 @@ function render(enterClass=""){
     document.getElementById("nextBtn").textContent=currentIndex===cards.length-1 ? "Final match" : "Next";
 
     if(direction==="en-es"){
-        frontLang.textContent="English";
+        frontLang.textContent="🇬🇧";
         frontLang.className="lang en";
         frontTerm.textContent=card.en;
         frontTerm.className="term en";
-        backLang.textContent="Español";
+        backLang.textContent="🇪🇸";
         backLang.className="lang es";
         backTerm.textContent=card.es;
         backTerm.className="term es";
     }else{
-        frontLang.textContent="Español";
+        frontLang.textContent="🇪🇸";
         frontLang.className="lang es";
         frontTerm.textContent=card.es;
         frontTerm.className="term es";
-        backLang.textContent="English";
+        backLang.textContent="🇬🇧";
         backLang.className="lang en";
         backTerm.textContent=card.en;
         backTerm.className="term en";
