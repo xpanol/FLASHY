@@ -109,6 +109,7 @@ body{
     cursor:pointer;
     transform-style:preserve-3d;
     transition:transform 0.62s ease;
+    touch-action:pan-y;
 }
 
 .flashcard.flipped{
@@ -140,10 +141,18 @@ body{
     backface-visibility:hidden;
 }
 
-.back{
-    transform:rotateY(180deg);
+.face.en-face{
     border-color:var(--sector);
     box-shadow:0 0 34px rgba(177,140,255,0.28);
+}
+
+.face.es-face{
+    border-color:var(--brand);
+    box-shadow:0 0 34px rgba(248,172,16,0.28);
+}
+
+.back{
+    transform:rotateY(180deg);
 }
 
 .lang{
@@ -228,10 +237,45 @@ button.active{
 }
 
 #enEs:hover,
-#esEn:hover,
-#enEs.active,
-#esEn.active{
+#enEs.active{
+    background:var(--sector);
+    border-color:var(--sector);
     color:#000;
+}
+
+#esEn:hover,
+#esEn.active{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+}
+
+#flashMode > .controls button{
+    font-size:26px;
+}
+
+#flashMode > .controls button span{
+    display:inline;
+}
+
+#flashMode > .controls button:hover .button-en{
+    display:none;
+}
+
+#flashMode > .controls button:hover .button-es{
+    display:inline;
+}
+
+#flashMode > .controls button .button-es{
+    display:none;
+}
+
+.english-color{
+    color:var(--sector);
+}
+
+.spanish-color{
+    color:var(--brand);
 }
 
 .hidden{
@@ -356,6 +400,8 @@ button.active{
 }
 
 .match-card{
+    position:relative;
+    overflow:hidden;
     background:var(--panel);
     border:1px solid var(--border);
     border-radius:12px;
@@ -441,6 +487,182 @@ button.active{
     color:var(--ok);
     min-height:28px;
 }
+
+
+/* =========================
+   BUTTON TRANSLATIONS
+   ========================= */
+
+.home-actions button,
+.match-card > .controls button{
+    position:relative;
+    font-size:0;
+}
+
+.home-actions button::after,
+.match-card > .controls button::after{
+    display:inline;
+    font-size:26px;
+}
+
+.home-actions button:nth-child(1)::after{
+    content:"Start flashcards";
+}
+
+.home-actions button:nth-child(2)::after{
+    content:"Final match";
+}
+
+.home-actions button:nth-child(1):hover::after{
+    content:"Iniciar flashcards";
+}
+
+.home-actions button:nth-child(2):hover::after{
+    content:"Ejercicio final";
+}
+
+.match-card > .controls button:nth-child(1)::after{
+    content:"Back to flashcards";
+}
+
+.match-card > .controls button:nth-child(2)::after{
+    content:"Shuffle again";
+}
+
+.match-card > .controls button:nth-child(3)::after{
+    content:"Home";
+}
+
+.match-card > .controls button:nth-child(1):hover::after{
+    content:"Volver a las flashcards";
+}
+
+.match-card > .controls button:nth-child(2):hover::after{
+    content:"Mezclar de nuevo";
+}
+
+.match-card > .controls button:nth-child(3):hover::after{
+    content:"Inicio";
+}
+
+
+/* =========================
+   VICTORY EFFECT
+   ========================= */
+
+.match-card.victory .match-grid{
+    animation:victoryGrid 0.95s ease forwards;
+}
+
+.match-card.victory .match-item.matched{
+    animation:victoryCard 0.95s cubic-bezier(.15,.8,.25,1) forwards;
+}
+
+.victory-message{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:100%;
+    text-align:center;
+    transform:translate(-50%,-50%) scale(0);
+    opacity:0;
+    z-index:30;
+    pointer-events:none;
+}
+
+.match-card.victory .victory-message{
+    animation:victoryMessage 0.85s cubic-bezier(.16,1.35,.25,1) 0.72s forwards;
+}
+
+.victory-en{
+    color:var(--sector);
+    font-size:clamp(34px,7vw,64px);
+    line-height:1;
+    text-shadow:
+        0 0 12px rgba(177,140,255,.85),
+        0 0 30px rgba(177,140,255,.65),
+        0 0 55px rgba(177,140,255,.35);
+}
+
+.victory-es{
+    color:var(--brand);
+    font-size:clamp(34px,7vw,64px);
+    margin-top:12px;
+    line-height:1;
+    text-shadow:
+        0 0 12px rgba(248,172,16,.85),
+        0 0 30px rgba(248,172,16,.65),
+        0 0 55px rgba(248,172,16,.35);
+}
+
+.victory-score{
+    color:var(--ok);
+    font-size:20px;
+    margin-top:20px;
+}
+
+@keyframes victoryCard{
+    0%{
+        transform:translate(0,0) scale(1);
+        opacity:1;
+        box-shadow:0 0 18px rgba(66,255,135,.65);
+    }
+
+    18%{
+        transform:translate(0,-12px) scale(1.05);
+        opacity:1;
+        box-shadow:0 0 30px rgba(66,255,135,.9);
+    }
+
+    100%{
+        transform:
+            translate(
+                calc(var(--x) * 1px),
+                calc(var(--y) * 1px)
+            )
+            rotate(var(--r))
+            scale(.15);
+        opacity:0;
+        box-shadow:none;
+    }
+}
+
+@keyframes victoryGrid{
+    0%{
+        opacity:1;
+    }
+
+    72%{
+        opacity:1;
+    }
+
+    100%{
+        opacity:0;
+    }
+}
+
+@keyframes victoryMessage{
+    0%{
+        transform:translate(-50%,-50%) scale(0);
+        opacity:0;
+    }
+
+    55%{
+        transform:translate(-50%,-50%) scale(1.12);
+        opacity:1;
+    }
+
+    75%{
+        transform:translate(-50%,-50%) scale(.96);
+        opacity:1;
+    }
+
+    100%{
+        transform:translate(-50%,-50%) scale(1);
+        opacity:1;
+    }
+}
+
 
 @media (max-width:620px){
     .topbar,
@@ -576,6 +798,7 @@ button.active{
     <div class="logo">
         <img src="logo.png" alt="XPAÑOL">
     </div>
+
     <div class="sector">
         <div>DIGITAL MARKETING FLASHCARDS</div>
         <div class="sector-es">FLASHCARDS DE MARKETING DIGITAL</div>
@@ -584,11 +807,21 @@ button.active{
 
 <div id="homeMode">
     <div class="home-card">
+
         <div>
             <div class="home-copy">
-                <p><span class="english-color">English:</span> Practice 10 bilingual concepts, flip each card, then match every pair in the final exercise.</p>
-                <p><span class="spanish-color">Español: Practica 10 conceptos bilingües, gira cada ficha y después une todas las parejas en el ejercicio final.</span></p>
+                <p>
+                    <span class="english-color">English:</span>
+                    Practice 10 bilingual concepts, flip each card, then match every pair in the final exercise.
+                </p>
+
+                <p>
+                    <span class="spanish-color">
+                        Español: Practica 10 conceptos bilingües, gira cada ficha y después une todas las parejas en el ejercicio final.
+                    </span>
+                </p>
             </div>
+
             <div class="controls home-actions">
                 <button onclick="startFlashcards()">Start flashcards</button>
                 <button onclick="showMatchExercise()">Final match</button>
@@ -596,67 +829,119 @@ button.active{
         </div>
 
         <div class="flash-preview">
-            <div class="preview-card" onclick="startFlashcards()" role="button" tabindex="0" onkeydown="startFromPreview(event)">
+            <div
+                class="preview-card"
+                onclick="startFlashcards()"
+                role="button"
+                tabindex="0"
+                onkeydown="startFromPreview(event)"
+            >
                 <div class="preview-label">Flashcard</div>
                 <div class="preview-term">organic traffic</div>
                 <div class="preview-pair">tráfico orgánico</div>
             </div>
         </div>
+
     </div>
 </div>
 
 <div id="flashMode" class="hidden">
+
     <div class="meta">
         <div class="counter" id="counter"></div>
+
         <div class="direction">
-            <button id="enEs" onclick="setDirection('en-es')">EN → ES</button>
-            <button id="esEn" onclick="setDirection('es-en')">ES → EN</button>
+
+            <button id="enEs" onclick="setDirection('en-es')">
+                🇬🇧 → 🇪🇸
+            </button>
+
+            <button id="esEn" onclick="setDirection('es-en')">
+                🇪🇸 → 🇬🇧
+            </button>
+
         </div>
     </div>
 
     <div class="card-shell">
-        <div class="flashcard" id="flashcard" onclick="flipCard()">
+
+        <div class="flashcard" id="flashcard">
+
             <div class="face front">
                 <div class="lang" id="frontLang"></div>
                 <div class="term" id="frontTerm"></div>
                 <div class="hint">Click to flip</div>
             </div>
+
             <div class="face back">
                 <div class="lang" id="backLang"></div>
                 <div class="term" id="backTerm"></div>
                 <div class="hint">Click to return</div>
             </div>
+
         </div>
+
     </div>
 
     <div class="controls">
-        <button onclick="prevCard()">Previous</button>
-        <button id="nextBtn" onclick="nextCard()">Next</button>
-        <button onclick="showHome()">Home</button>
+        <button onclick="prevCard()">
+            <span class="button-en">Previous</span>
+            <span class="button-es">Anterior</span>
+        </button>
+
+        <button id="nextBtn" onclick="nextCard()">
+            <span class="button-en">Next</span>
+            <span class="button-es">Siguiente</span>
+        </button>
+
+        <button onclick="showHome()">
+            <span class="button-en">Home</span>
+            <span class="button-es">Inicio</span>
+        </button>
     </div>
+
 </div>
 
 <div id="matchMode" class="hidden">
-    <div class="match-card">
-        <div class="match-title">Match the concepts / Une los conceptos</div>
+
+    <div class="match-card" id="matchCard">
+
+        <div class="victory-message">
+            <div class="victory-en">CONGRATULATIONS!</div>
+            <div class="victory-es">¡ENHORABUENA!</div>
+            <div class="victory-score">10 / 10 MATCHED</div>
+        </div>
+
+        <div class="match-title">
+            Match the concepts / Une los conceptos
+        </div>
+
         <div class="match-status" id="matchStatus"></div>
+
         <div class="match-grid">
+
             <div class="match-column">
                 <div class="match-heading en">English</div>
                 <div id="englishList"></div>
             </div>
+
             <div class="match-column">
                 <div class="match-heading">Español</div>
                 <div id="spanishList"></div>
             </div>
+
         </div>
+
         <div class="match-complete" id="matchComplete"></div>
+
         <div class="controls">
             <button onclick="restartFlashcards()">Back to flashcards</button>
             <button onclick="startMatching()">Shuffle again</button>
             <button onclick="showHome()">Home</button>
         </div>
+
     </div>
+
 </div>
 
 </div>
@@ -679,225 +964,694 @@ let currentIndex=0;
 let direction="en-es";
 let isFlipped=false;
 let isChanging=false;
+
 let selectedEnglish=null;
 let selectedSpanish=null;
 let matchedCount=0;
+
+
+/* =========================
+   SHUFFLE
+   ========================= */
 
 function shuffleList(list){
     return [...list].sort(()=>Math.random()-0.5);
 }
 
+
+/* =========================
+   RENDER FLASHCARD
+   ========================= */
+
 function render(enterClass=""){
+
     const card=cards[currentIndex];
+
     const frontLang=document.getElementById("frontLang");
     const backLang=document.getElementById("backLang");
+
     const frontTerm=document.getElementById("frontTerm");
     const backTerm=document.getElementById("backTerm");
+
     const counter=document.getElementById("counter");
     const flashcard=document.getElementById("flashcard");
 
+    const frontFace=document.querySelector(".face.front");
+    const backFace=document.querySelector(".face.back");
+
+
     isFlipped=false;
+
     flashcard.className="flashcard";
+
     if(enterClass){
         flashcard.classList.add(enterClass);
     }
-    counter.textContent=`${currentIndex+1} / ${cards.length}`;
-    document.getElementById("nextBtn").textContent=currentIndex===cards.length-1 ? "Final match" : "Next";
+
+
+    frontFace.classList.remove("en-face","es-face");
+    backFace.classList.remove("en-face","es-face");
+
+
+    counter.textContent=
+        `${currentIndex+1} / ${cards.length}`;
+
+
+    document.getElementById("nextBtn").querySelector(".button-en").textContent=
+        currentIndex===cards.length-1
+            ? "Final match"
+            : "Next";
+
+
+    /*
+       EN → ES
+    */
 
     if(direction==="en-es"){
+
+        frontFace.classList.add("en-face");
+        backFace.classList.add("es-face");
+
+
         frontLang.textContent="🇬🇧";
         frontLang.className="lang en";
+
         frontTerm.textContent=card.en;
         frontTerm.className="term en";
+
+
         backLang.textContent="🇪🇸";
         backLang.className="lang es";
+
         backTerm.textContent=card.es;
         backTerm.className="term es";
-    }else{
+
+    }
+
+
+    /*
+       ES → EN
+    */
+
+    else{
+
+        frontFace.classList.add("es-face");
+        backFace.classList.add("en-face");
+
+
         frontLang.textContent="🇪🇸";
         frontLang.className="lang es";
+
         frontTerm.textContent=card.es;
         frontTerm.className="term es";
+
+
         backLang.textContent="🇬🇧";
         backLang.className="lang en";
+
         backTerm.textContent=card.en;
         backTerm.className="term en";
     }
 
-    document.getElementById("enEs").classList.toggle("active", direction==="en-es");
-    document.getElementById("esEn").classList.toggle("active", direction==="es-en");
+
+    document.getElementById("enEs").classList.toggle(
+        "active",
+        direction==="en-es"
+    );
+
+    document.getElementById("esEn").classList.toggle(
+        "active",
+        direction==="es-en"
+    );
 }
+
+
+/* =========================
+   FLASHCARD CLICK / FLIP
+   ========================= */
+
+const flashcard=document.getElementById("flashcard");
+
+let touchStartX=0;
+let touchStartY=0;
+let suppressClickUntil=0;
+
+
+flashcard.addEventListener("click",()=>{
+
+    if(Date.now()<suppressClickUntil){
+        return;
+    }
+
+    flipCard();
+});
+
 
 function flipCard(){
+
     isFlipped=!isFlipped;
-    document.getElementById("flashcard").classList.toggle("flipped", isFlipped);
+
+    flashcard.classList.toggle(
+        "flipped",
+        isFlipped
+    );
 }
 
+
+/* =========================
+   MOBILE SWIPE
+   ========================= */
+
+flashcard.addEventListener("touchstart",(event)=>{
+
+    if(event.touches.length!==1){
+        return;
+    }
+
+    touchStartX=
+        event.touches[0].clientX;
+
+    touchStartY=
+        event.touches[0].clientY;
+
+},{
+    passive:true
+});
+
+
+flashcard.addEventListener("touchend",(event)=>{
+
+    if(event.changedTouches.length!==1){
+        return;
+    }
+
+    const touchEndX=
+        event.changedTouches[0].clientX;
+
+    const touchEndY=
+        event.changedTouches[0].clientY;
+
+
+    const deltaX=
+        touchEndX-touchStartX;
+
+    const deltaY=
+        touchEndY-touchStartY;
+
+
+    if(
+        Math.abs(deltaX)<50 ||
+        Math.abs(deltaX)<=Math.abs(deltaY)
+    ){
+        return;
+    }
+
+
+    suppressClickUntil=
+        Date.now()+700;
+
+
+    if(deltaX<0){
+        nextCard();
+    }else{
+        prevCard();
+    }
+
+},{
+    passive:true
+});
+
+
+/* =========================
+   CARD NAVIGATION
+   ========================= */
+
 function nextCard(){
+
     if(currentIndex===cards.length-1){
         showMatchExercise();
         return;
     }
+
     changeCard(1);
 }
 
+
 function prevCard(){
+
+    if(currentIndex===0){
+        return;
+    }
+
     changeCard(-1);
 }
 
+
 function changeCard(step){
-    if(isChanging) return;
+
+    if(isChanging){
+        return;
+    }
 
     isChanging=true;
-    const shell=document.querySelector(".card-shell");
-    const flashcard=document.getElementById("flashcard");
+
+    const shell=
+        document.querySelector(".card-shell");
+
+    const flashcard=
+        document.getElementById("flashcard");
+
+
     shell.classList.add("portal-burst");
+
+
     flashcard.classList.remove("flipped");
+
     isFlipped=false;
-    flashcard.classList.add(step > 0 ? "exit-next" : "exit-prev");
+
+
+    flashcard.classList.add(
+        step>0
+            ? "exit-next"
+            : "exit-prev"
+    );
+
 
     setTimeout(()=>{
-        currentIndex=(currentIndex+step+cards.length)%cards.length;
-        render(step > 0 ? "enter-next" : "enter-prev");
+
+        currentIndex=
+            (currentIndex+step+cards.length)
+            %cards.length;
+
+        render(
+            step>0
+                ? "enter-next"
+                : "enter-prev"
+        );
+
     },440);
 
+
     setTimeout(()=>{
-        document.getElementById("flashcard").classList.remove("enter-next","enter-prev");
-        shell.classList.remove("portal-burst");
+
+        document
+            .getElementById("flashcard")
+            .classList.remove(
+                "enter-next",
+                "enter-prev"
+            );
+
+        shell.classList.remove(
+            "portal-burst"
+        );
+
         isChanging=false;
+
     },980);
 }
 
+
 function setDirection(value){
-    if(isChanging) return;
+
+    if(isChanging){
+        return;
+    }
+
     direction=value;
+
     render();
 }
 
+
+/* =========================
+   HOME
+   ========================= */
+
 function startFromPreview(event){
-    if(event.key==="Enter" || event.key===" "){
+
+    if(
+        event.key==="Enter" ||
+        event.key===" "
+    ){
         event.preventDefault();
         startFlashcards();
     }
 }
 
+
 function showHome(){
-    document.getElementById("homeMode").classList.remove("hidden");
-    document.getElementById("flashMode").classList.add("hidden");
-    document.getElementById("matchMode").classList.add("hidden");
+
+    document
+        .getElementById("homeMode")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("flashMode")
+        .classList.add("hidden");
+
+    document
+        .getElementById("matchMode")
+        .classList.add("hidden");
 }
 
+
 function startFlashcards(){
+
     currentIndex=0;
+
     selectedEnglish=null;
     selectedSpanish=null;
+
     matchedCount=0;
-    document.getElementById("homeMode").classList.add("hidden");
-    document.getElementById("matchMode").classList.add("hidden");
-    document.getElementById("flashMode").classList.remove("hidden");
+
+
+    document
+        .getElementById("homeMode")
+        .classList.add("hidden");
+
+    document
+        .getElementById("matchMode")
+        .classList.add("hidden");
+
+    document
+        .getElementById("flashMode")
+        .classList.remove("hidden");
+
+
     render();
 }
 
+
 function showMatchExercise(){
-    document.getElementById("homeMode").classList.add("hidden");
-    document.getElementById("flashMode").classList.add("hidden");
-    document.getElementById("matchMode").classList.remove("hidden");
+
+    document
+        .getElementById("homeMode")
+        .classList.add("hidden");
+
+    document
+        .getElementById("flashMode")
+        .classList.add("hidden");
+
+    document
+        .getElementById("matchMode")
+        .classList.remove("hidden");
+
+
     startMatching();
 }
 
+
 function restartFlashcards(){
+
     currentIndex=0;
-    document.getElementById("homeMode").classList.add("hidden");
-    document.getElementById("matchMode").classList.add("hidden");
-    document.getElementById("flashMode").classList.remove("hidden");
+
+
+    document
+        .getElementById("homeMode")
+        .classList.add("hidden");
+
+    document
+        .getElementById("matchMode")
+        .classList.add("hidden");
+
+    document
+        .getElementById("flashMode")
+        .classList.remove("hidden");
+
+
     render();
 }
 
+
+/* =========================
+   MATCHING
+   ========================= */
+
 function startMatching(){
+
     selectedEnglish=null;
     selectedSpanish=null;
+
     matchedCount=0;
 
-    const englishList=document.getElementById("englishList");
-    const spanishList=document.getElementById("spanishList");
+
+    const matchCard=
+        document.getElementById("matchCard");
+
+    matchCard.classList.remove("victory");
+
+
+    const englishList=
+        document.getElementById("englishList");
+
+    const spanishList=
+        document.getElementById("spanishList");
+
+
     englishList.innerHTML="";
     spanishList.innerHTML="";
-    document.getElementById("matchComplete").textContent="";
+
+
+    document
+        .getElementById("matchComplete")
+        .textContent="";
+
+
     updateMatchStatus();
 
+
     shuffleList(cards).forEach((card)=>{
+
         englishList.innerHTML+=`
-            <button class="match-item" data-side="en" data-key="${card.en}" onclick="selectMatch(this)">
+            <button
+                class="match-item"
+                data-side="en"
+                data-key="${card.en}"
+                onclick="selectMatch(this)"
+            >
                 ${card.en}
             </button>
         `;
+
     });
 
+
     shuffleList(cards).forEach((card)=>{
+
         spanishList.innerHTML+=`
-            <button class="match-item" data-side="es" data-key="${card.en}" onclick="selectMatch(this)">
+            <button
+                class="match-item"
+                data-side="es"
+                data-key="${card.en}"
+                onclick="selectMatch(this)"
+            >
                 ${card.es}
             </button>
         `;
+
     });
 }
 
+
 function selectMatch(el){
-    if(el.classList.contains("matched")) return;
+
+    if(el.classList.contains("matched")){
+        return;
+    }
+
 
     const side=el.dataset.side;
+
+
     clearWrong();
 
+
     if(side==="en"){
-        if(selectedEnglish) selectedEnglish.classList.remove("selected");
+
+        if(selectedEnglish){
+            selectedEnglish.classList.remove(
+                "selected"
+            );
+        }
+
         selectedEnglish=el;
+
     }else{
-        if(selectedSpanish) selectedSpanish.classList.remove("selected");
+
+        if(selectedSpanish){
+            selectedSpanish.classList.remove(
+                "selected"
+            );
+        }
+
         selectedSpanish=el;
     }
 
+
     el.classList.add("selected");
 
-    if(selectedEnglish && selectedSpanish){
+
+    if(
+        selectedEnglish &&
+        selectedSpanish
+    ){
         checkMatch();
     }
 }
 
+
 function checkMatch(){
-    const isCorrect=selectedEnglish.dataset.key===selectedSpanish.dataset.key;
+
+    const isCorrect=
+        selectedEnglish.dataset.key===
+        selectedSpanish.dataset.key;
+
 
     if(isCorrect){
-        selectedEnglish.classList.remove("selected");
-        selectedSpanish.classList.remove("selected");
-        selectedEnglish.classList.add("matched");
-        selectedSpanish.classList.add("matched");
+
+        selectedEnglish.classList.remove(
+            "selected"
+        );
+
+        selectedSpanish.classList.remove(
+            "selected"
+        );
+
+
+        selectedEnglish.classList.add(
+            "matched"
+        );
+
+        selectedSpanish.classList.add(
+            "matched"
+        );
+
+
         matchedCount++;
+
+
         selectedEnglish=null;
         selectedSpanish=null;
+
+
         updateMatchStatus();
 
+
         if(matchedCount===cards.length){
-            document.getElementById("matchComplete").textContent="Complete. All concepts matched.";
+
+            const items=[
+                ...document.querySelectorAll(
+                    ".match-item.matched"
+                )
+            ];
+
+            items.forEach((item)=>{
+
+                const angle=
+                    Math.random()*Math.PI*2;
+
+                const distance=
+                    180+Math.random()*300;
+
+                const x=
+                    Math.cos(angle)*distance;
+
+                const y=
+                    Math.sin(angle)*distance;
+
+                const r=
+                    -360+Math.random()*720;
+
+
+                item.style.setProperty(
+                    "--x",
+                    x
+                );
+
+                item.style.setProperty(
+                    "--y",
+                    y
+                );
+
+                item.style.setProperty(
+                    "--r",
+                    `${r}deg`
+                );
+
+            });
+
+
+            setTimeout(()=>{
+
+                document
+                    .getElementById("matchCard")
+                    .classList.add("victory");
+
+            },180);
         }
+
+
     }else{
-        selectedEnglish.classList.add("wrong");
-        selectedSpanish.classList.add("wrong");
+
+        selectedEnglish.classList.add(
+            "wrong"
+        );
+
+        selectedSpanish.classList.add(
+            "wrong"
+        );
+
+
         setTimeout(()=>{
-            selectedEnglish.classList.remove("selected","wrong");
-            selectedSpanish.classList.remove("selected","wrong");
+
+            if(selectedEnglish){
+
+                selectedEnglish.classList.remove(
+                    "selected",
+                    "wrong"
+                );
+            }
+
+
+            if(selectedSpanish){
+
+                selectedSpanish.classList.remove(
+                    "selected",
+                    "wrong"
+                );
+            }
+
+
             selectedEnglish=null;
             selectedSpanish=null;
+
         },420);
     }
 }
 
+
 function clearWrong(){
-    document.querySelectorAll(".match-item.wrong").forEach((item)=>item.classList.remove("wrong"));
+
+    document
+        .querySelectorAll(".match-item.wrong")
+        .forEach((item)=>{
+
+            item.classList.remove(
+                "wrong"
+            );
+
+        });
 }
 
+
 function updateMatchStatus(){
-    document.getElementById("matchStatus").textContent=`${matchedCount} / ${cards.length} matched`;
+
+    document
+        .getElementById("matchStatus")
+        .textContent=
+        `${matchedCount} / ${cards.length} matched`;
 }
+
 
 render();
 </script>
