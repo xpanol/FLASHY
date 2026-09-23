@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>XPAÑOL | Flashcards + Glosario</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --black:#000;
+    --panel:#0b0b0b;
+    --border:#1f1f1f;
+    --brand:#F8AC10;
+    --sector:#b18cff;
+    --ok:#42ff87;
+    --bad:#ff2525;
+    --muted:#9a9a9a;
+    --stripe:#101010;
+
+    --fs-base:20px;
+    --fs-logo:20px;
+    --fs-ui:30px;
+    --fs-card:34px;
+}
+
+*{
+    box-sizing:border-box;
+    font-family:'Special Elite', monospace !important;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    background:var(--black);
+    color:#fff;
+    font-size:var(--fs-base);
+}
+
+.wrap{
+    min-height:100vh;
+    max-width:900px;
+    margin:0 auto;
+    padding:56px 24px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+}
+
+.logo{
+    color:var(--brand);
+    font-size:var(--fs-logo);
+}
+
+.logo img{
+    width:160px;
+    height:auto;
+    display:block;
+}
+
+.sector{
+    color:var(--sector);
+    font-size:var(--fs-ui);
+    text-align:right;
+}
+
+.sector-es{
+    color:var(--brand);
+    margin-top:8px;
+}
+
+/* =========================
+   TOP NAVIGATION (Flashcards / Glosario)
+   ========================= */
+
+.nav-switch{
+    display:flex;
+    gap:10px;
+    margin-bottom:28px;
+}
+
+.nav-switch button{
+    flex:1;
+    background:#000;
+    border:1px solid var(--border);
+    color:#fff;
+    padding:14px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:22px;
+}
+
+.nav-switch button.active{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+}
+
+.nav-switch button:hover:not(.active){
+    background:var(--sector);
+    border-color:var(--sector);
+    color:#000;
+}
+
+.card-shell{
+    perspective:1000px;
+    position:relative;
+    overflow:hidden;
+    border-radius:12px;
+    margin-top:40px;
+}
+
+.card-shell::after{
+    content:"";
+    position:absolute;
+    left:-35%;
+    top:50%;
+    width:170%;
+    height:4px;
+    background:linear-gradient(90deg, transparent, var(--brand), #fff, var(--sector), transparent);
+    box-shadow:0 0 26px var(--brand), 0 0 42px var(--sector);
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(-50%) scaleX(0);
+}
+
+.card-shell.portal-burst::after{
+    animation:portalBurst 0.72s ease forwards;
+}
+
+.flashcard{
+    position:relative;
+    min-height:260px;
+    border-radius:12px;
+    cursor:pointer;
+    transform-style:preserve-3d;
+    transition:transform 0.62s ease;
+    touch-action:pan-y;
+}
+
+.flashcard.flipped{
+    transform:rotateY(180deg);
+}
+
+.flashcard.exit-next,
+.flashcard.exit-prev{
+    animation:portalOut 0.36s ease-in forwards;
+}
+
+.flashcard.enter-next,
+.flashcard.enter-prev{
+    animation:portalIn 0.58s cubic-bezier(.16,.95,.2,1) forwards;
+}
+
+.face{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    padding:28px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    backface-visibility:hidden;
+}
+
+.face.en-face{
+    border-color:var(--sector);
+    box-shadow:0 0 34px rgba(177,140,255,0.28);
+}
+
+.face.es-face{
+    border-color:var(--brand);
+    box-shadow:0 0 34px rgba(248,172,16,0.28);
+}
+
+.back{
+    transform:rotateY(180deg);
+}
+
+.lang{
+    font-size:42px;
+    line-height:1;
+}
+
+.lang.en{
+    color:var(--sector);
+}
+
+.lang.es{
+    color:var(--brand);
+}
+
+.term{
+    font-size:var(--fs-card);
+    text-align:center;
+    line-height:1.15;
+}
+
+.term.en{
+    color:var(--sector);
+}
+
+.term.es{
+    color:var(--brand);
+}
+
+.hint{
+    color:#aaa;
+    font-size:16px;
+    text-align:center;
+}
+
+.meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    margin:18px 0 34px;
+}
+
+.counter{
+    color:var(--sector);
+}
+
+.controls,
+.direction{
+    display:flex;
+    gap:10px;
+}
+
+.controls{
+    margin-top:28px;
+}
+
+button{
+    flex:1;
+    background:#000;
+    border:1px solid var(--border);
+    color:#fff;
+    padding:12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:var(--fs-ui);
+}
+
+button:hover,
+button.active{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+}
+
+#enEs{
+    color:var(--sector);
+}
+
+#esEn{
+    color:var(--brand);
+}
+
+#enEs:hover,
+#enEs.active{
+    background:var(--sector);
+    border-color:var(--sector);
+    color:#000;
+}
+
+#esEn:hover,
+#esEn.active{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+}
+
+#flashMode > .controls button{
+    font-size:26px;
+}
+
+.english-color{
+    color:var(--sector);
+}
+
+.spanish-color{
+    color:var(--brand);
+}
+
+.hidden{
+    display:none;
+}
+
+.home-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:38px;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:38px;
+    align-items:center;
+}
+
+.home-copy{
+    color:var(--sector);
+    line-height:1.35;
+    margin-bottom:0;
+}
+
+.home-copy p{
+    margin:0 0 16px;
+}
+
+.home-copy p:last-child{
+    margin-bottom:0;
+}
+
+/* category picker */
+.cat-heading{
+    color:var(--muted);
+    font-size:16px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    margin-top:26px;
+    margin-bottom:10px;
+}
+
+.cat-pills{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.cat-pill{
+    flex:none;
+    background:#000;
+    border:1.5px solid var(--border);
+    color:var(--muted);
+    font-size:15px;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.cat-pill:hover{
+    border-color:var(--sector);
+    color:var(--sector);
+}
+
+.cat-pill.active{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+}
+
+.home-actions{
+    margin-top:26px;
+}
+
+.flash-preview{
+    position:relative;
+    min-height:260px;
+    isolation:isolate;
+}
+
+.preview-card{
+    position:absolute;
+    inset:22px 0 0 28px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:24px;
+    background:linear-gradient(145deg, #111, #020202);
+    border:2px solid var(--sector);
+    border-radius:12px;
+    box-shadow:0 0 0 1px rgba(177,140,255,0.25), 0 0 34px rgba(177,140,255,0.26);
+    cursor:pointer;
+    transition:transform 0.22s, border-color 0.22s, box-shadow 0.22s, background 0.22s;
+}
+
+.preview-card:hover{
+    border-color:var(--brand);
+    background:linear-gradient(145deg, #16110a, #050505);
+    box-shadow:0 0 0 2px rgba(248,172,16,0.35), 0 0 44px rgba(248,172,16,0.34), 0 0 36px rgba(177,140,255,0.2);
+    transform:translateY(-8px) rotate(-1deg);
+}
+
+.preview-card::before,
+.preview-card::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border:2px solid var(--border);
+    border-radius:12px;
+    background:#121212;
+    z-index:-1;
+    transition:transform 0.22s, border-color 0.22s, background 0.22s;
+}
+
+.preview-card::before{
+    border-color:rgba(248,172,16,0.68);
+    background:linear-gradient(145deg, #181008, #090909);
+    transform:translate(-18px,-18px) rotate(-5deg);
+}
+
+.preview-card::after{
+    border-color:rgba(177,140,255,0.68);
+    background:linear-gradient(145deg, #120f1d, #090909);
+    transform:translate(14px,14px) rotate(4deg);
+}
+
+.preview-card:hover::before{
+    transform:translate(-26px,-22px) rotate(-8deg);
+}
+
+.preview-card:hover::after{
+    transform:translate(22px,20px) rotate(7deg);
+}
+
+.preview-label{
+    color:var(--brand);
+    font-size:var(--fs-ui);
+}
+
+.preview-term{
+    font-size:28px;
+    text-align:center;
+    line-height:1.15;
+    color:var(--sector);
+}
+
+.preview-pair{
+    color:var(--brand);
+    text-align:center;
+}
+
+.match-heading{
+    color:var(--brand);
+    margin-bottom:8px;
+}
+
+.match-heading.en{
+    color:var(--sector);
+}
+
+.match-card{
+    position:relative;
+    overflow:hidden;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:22px;
+}
+
+.match-title{
+    color:var(--brand);
+    font-size:var(--fs-logo);
+    margin-bottom:10px;
+}
+
+.match-status{
+    color:var(--sector);
+    margin-bottom:18px;
+}
+
+.match-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+
+.match-column{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+#englishList,
+#spanishList{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.match-item{
+    width:100%;
+    min-height:54px;
+    text-align:left;
+    transition:background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.match-item[data-side="en"]{
+    color:var(--sector);
+}
+
+.match-item[data-side="es"]{
+    color:var(--brand);
+}
+
+.match-item:not(.matched):not(.wrong):hover,
+.match-item:not(.matched):not(.wrong):focus{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+    box-shadow:0 0 0 2px rgba(248,172,16,0.28), 0 0 24px rgba(248,172,16,0.24);
+}
+
+.match-item.selected{
+    border-color:var(--brand);
+    color:#000;
+    background:var(--brand);
+    box-shadow:0 0 0 2px rgba(248,172,16,0.35), 0 0 26px rgba(248,172,16,0.3);
+}
+
+.match-item.matched{
+    border-color:var(--ok);
+    color:#000;
+    background:var(--ok);
+    cursor:default;
+}
+
+.match-item.wrong{
+    border-color:var(--bad);
+    color:#000;
+    background:var(--bad);
+    animation:shake 0.36s ease;
+}
+
+.match-complete{
+    margin-top:18px;
+    color:var(--ok);
+    min-height:28px;
+}
+
+/* button translations */
+.home-actions button,
+.match-card > .controls button{
+    position:relative;
+    font-size:0;
+}
+
+.home-actions button::after,
+.match-card > .controls button::after{
+    display:inline;
+    font-size:26px;
+}
+
+.home-actions button:nth-child(1)::after{ content:"Start flashcards"; }
+.home-actions button:nth-child(2)::after{ content:"Final match"; }
+.home-actions button:nth-child(1):hover::after{ content:"Iniciar flashcards"; }
+.home-actions button:nth-child(2):hover::after{ content:"Ejercicio final"; }
+
+.match-card > .controls button:nth-child(1)::after{ content:"Back to flashcards"; }
+.match-card > .controls button:nth-child(2)::after{ content:"Shuffle again"; }
+.match-card > .controls button:nth-child(3)::after{ content:"Home"; }
+.match-card > .controls button:nth-child(1):hover::after{ content:"Volver a las flashcards"; }
+.match-card > .controls button:nth-child(2):hover::after{ content:"Mezclar de nuevo"; }
+.match-card > .controls button:nth-child(3):hover::after{ content:"Inicio"; }
+
+/* victory */
+.match-card.victory .match-grid{ animation:victoryGrid 0.95s ease forwards; }
+.match-card.victory .match-item.matched{ animation:victoryCard 0.95s cubic-bezier(.15,.8,.25,1) forwards; }
+
+.victory-message{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:100%;
+    text-align:center;
+    transform:translate(-50%,-50%) scale(0);
+    opacity:0;
+    z-index:30;
+    pointer-events:none;
+}
+
+.match-card.victory .victory-message{
+    animation:victoryMessage 0.85s cubic-bezier(.16,1.35,.25,1) 0.72s forwards;
+}
+
+.victory-en{
+    color:var(--sector);
+    font-size:clamp(34px,7vw,64px);
+    line-height:1;
+    text-shadow:0 0 12px rgba(177,140,255,.85), 0 0 30px rgba(177,140,255,.65), 0 0 55px rgba(177,140,255,.35);
+}
+
+.victory-es{
+    color:var(--brand);
+    font-size:clamp(34px,7vw,64px);
+    margin-top:12px;
+    line-height:1;
+    text-shadow:0 0 12px rgba(248,172,16,.85), 0 0 30px rgba(248,172,16,.65), 0 0 55px rgba(248,172,16,.35);
+}
+
+.victory-score{
+    color:var(--ok);
+    font-size:20px;
+    margin-top:20px;
+}
+
+@keyframes victoryCard{
+    0%{ transform:translate(0,0) scale(1); opacity:1; box-shadow:0 0 18px rgba(66,255,135,.65); }
+    18%{ transform:translate(0,-12px) scale(1.05); opacity:1; box-shadow:0 0 30px rgba(66,255,135,.9); }
+    100%{ transform:translate(calc(var(--x) * 1px), calc(var(--y) * 1px)) rotate(var(--r)) scale(.15); opacity:0; box-shadow:none; }
+}
+
+@keyframes victoryGrid{ 0%{opacity:1;} 72%{opacity:1;} 100%{opacity:0;} }
+
+@keyframes victoryMessage{
+    0%{ transform:translate(-50%,-50%) scale(0); opacity:0; }
+    55%{ transform:translate(-50%,-50%) scale(1.12); opacity:1; }
+    75%{ transform:translate(-50%,-50%) scale(.96); opacity:1; }
+    100%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+}
+
+/* =========================
+   GLOSSARY VIEW
+   ========================= */
+
+#glossaryMode{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.gl-search-wrap{ position:relative; }
+
+.gl-search-wrap::before{
+    content:'⌕';
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--brand);
+    font-size:20px;
+    pointer-events:none;
+}
+
+#glSearch{
+    width:100%;
+    padding:14px 44px 14px 42px;
+    background:var(--panel);
+    border:2px solid var(--brand);
+    color:#fff;
+    font-size:18px;
+    outline:none;
+}
+
+#glSearch::placeholder{ color:var(--muted); }
+
+#glClear{
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:22px;
+    cursor:pointer;
+    display:none;
+}
+
+#glClear.show{ display:block; }
+
+.gl-filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.gl-pill{
+    background:#000;
+    border:1.5px solid var(--border);
+    color:var(--muted);
+    font-size:14px;
+    padding:7px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+}
+
+.gl-pill:hover{ border-color:var(--brand); color:var(--brand); }
+
+.gl-pill.active{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#000;
+    font-weight:bold;
+}
+
+.gl-stats{
+    font-size:15px;
+    color:var(--muted);
+}
+
+.gl-stats span{ color:var(--brand); font-weight:bold; }
+
+.gl-section{ scroll-margin-top:20px; }
+
+.gl-section-header{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:10px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--brand);
+}
+
+.gl-section-num{
+    background:var(--brand);
+    color:#000;
+    font-size:14px;
+    padding:2px 8px;
+    font-weight:bold;
+}
+
+.gl-section-title{
+    color:var(--brand);
+    font-size:18px;
+    text-transform:uppercase;
+    flex:1 1 auto;
+}
+
+.gl-section-count{
+    margin-left:auto;
+    font-size:13px;
+    color:var(--muted);
+}
+
+.gl-col-labels{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    margin-bottom:6px;
+}
+
+.gl-col-label{
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--muted);
+    padding:0 14px;
+}
+
+.gl-entries{
+    display:flex;
+    flex-direction:column;
+    border:1px solid var(--border);
+    border-radius:2px;
+    overflow:hidden;
+}
+
+.gl-entry{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border-bottom:1px solid var(--border);
+}
+
+.gl-entry:nth-child(even){ background:var(--stripe); }
+.gl-entry:last-child{ border-bottom:none; }
+.gl-entry:hover{ background:#1c1a16; }
+.gl-entry.hidden{ display:none; }
+
+.gl-cell{
+    padding:11px 14px;
+    font-size:16px;
+    line-height:1.45;
+    word-break:break-word;
+}
+
+.gl-cell-es{ border-right:2px solid var(--brand); color:var(--brand); }
+.gl-cell-en{ color:var(--sector); }
+
+.gl-cell mark{
+    background:var(--brand);
+    color:#000;
+    padding:0 0.1em;
+    border-radius:1px;
+}
+
+#glNoResults{
+    display:none;
+    text-align:center;
+    padding:40px 10px;
+    color:var(--muted);
+}
+
+.gl-back{
+    margin-top:6px;
+}
+
+@media (max-width:620px){
+
+    .topbar,
+    .meta,
+    .controls,
+    .direction,
+    .nav-switch{
+        flex-direction:column;
+    }
+
+    .sector{ text-align:left; }
+    .term{ font-size:28px; }
+    .match-grid{ grid-template-columns:1fr; }
+    .meta{ margin-bottom:42px; }
+    .card-shell{ margin-top:22px; }
+
+    .wrap{
+        justify-content:flex-start;
+        padding-top:36px;
+        padding-bottom:36px;
+    }
+
+    .home-card{
+        grid-template-columns:1fr;
+        padding:28px;
+        gap:30px;
+    }
+
+    .flash-preview{ min-height:230px; }
+    .preview-card{ inset:18px 8px 0 18px; }
+
+    .gl-entry{ grid-template-columns:1fr; }
+    .gl-cell-es{ border-right:none; border-bottom:1px solid var(--brand); }
+    .gl-col-labels{ display:none; }
+}
+
+@keyframes shake{
+    0%{transform:translateX(0);}
+    25%{transform:translateX(-8px);}
+    50%{transform:translateX(8px);}
+    75%{transform:translateX(-5px);}
+    100%{transform:translateX(0);}
+}
+
+@keyframes portalOut{
+    0%{ opacity:1; filter:blur(0); transform:translateY(0) scale(1); clip-path:inset(0 0 0 0 round 12px); }
+    60%{ opacity:1; filter:blur(1px); transform:translateY(0) scaleX(1.04) scaleY(0.2); clip-path:inset(39% 0 39% 0 round 12px); }
+    100%{ opacity:0; filter:blur(9px); transform:translateY(0) scaleX(0.18) scaleY(0.035); clip-path:inset(48% 0 48% 0 round 12px); }
+}
+
+@keyframes portalIn{
+    0%{ opacity:0; filter:blur(10px); transform:translateY(0) scaleX(0.16) scaleY(0.035); clip-path:inset(48% 0 48% 0 round 12px); }
+    42%{ opacity:1; filter:blur(2px); transform:translateY(0) scaleX(1.08) scaleY(0.24); clip-path:inset(38% 0 38% 0 round 12px); }
+    76%{ opacity:1; filter:blur(0); transform:translateY(0) scaleX(1.03) scaleY(1.05); clip-path:inset(0 0 0 0 round 12px); }
+    100%{ opacity:1; filter:blur(0); transform:translateY(0) scale(1); clip-path:inset(0 0 0 0 round 12px); }
+}
+
+@keyframes portalBurst{
+    0%{ opacity:0; transform:translateY(-50%) scaleX(0); }
+    28%{ opacity:1; transform:translateY(-50%) scaleX(1); }
+    55%{ opacity:0.9; transform:translateY(-50%) scaleX(0.42); }
+    100%{ opacity:0; transform:translateY(-50%) scaleX(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="topbar">
+    <div class="logo">
+        <img src="logo.png" alt="XPAÑOL">
+    </div>
+
+    <div class="sector">
+        <div>BILINGUAL FLASHCARDS &amp; GLOSSARY</div>
+        <div class="sector-es">FLASHCARDS Y GLOSARIO BILINGÜE</div>
+    </div>
+</div>
+
+<div class="nav-switch">
+    <button id="navFlash" class="active" onclick="showHome()">🗂 Flashcards</button>
+    <button id="navGlossary" onclick="showGlossary()">📖 Glosario completo / Full Glossary</button>
+</div>
+
+<div id="homeMode">
+    <div class="home-card">
+
+        <div>
+            <div class="home-copy">
+                <p>
+                    <span class="english-color">English:</span>
+                    Pick a category from our glossary, practice with flashcards, then match every pair in the final exercise.
+                </p>
+
+                <p>
+                    <span class="spanish-color">
+                        Español: Elige una categoría de nuestro glosario, practica con las flashcards y después une todas las parejas en el ejercicio final.
+                    </span>
+                </p>
+            </div>
+
+            <div class="cat-heading">Categoría / Category</div>
+            <div class="cat-pills" id="catPills"></div>
+
+            <div class="controls home-actions">
+                <button onclick="startFlashcards()">Start flashcards</button>
+                <button onclick="startMatchFromHome()">Final match</button>
+            </div>
+        </div>
+
+        <div class="flash-preview">
+            <div
+                class="preview-card"
+                onclick="startFlashcards()"
+                role="button"
+                tabindex="0"
+                onkeydown="startFromPreview(event)"
+            >
+                <div class="preview-label">Flashcard</div>
+                <div class="preview-term" id="previewTerm">organic traffic</div>
+                <div class="preview-pair" id="previewPair">tráfico orgánico</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="flashMode" class="hidden">
+
+    <div class="meta">
+        <div class="counter" id="counter"></div>
+
+        <div class="direction">
+            <button id="enEs" onclick="setDirection('en-es')">🇬🇧 → 🇪🇸</button>
+            <button id="esEn" onclick="setDirection('es-en')">🇪🇸 → 🇬🇧</button>
+        </div>
+    </div>
+
+    <div class="card-shell">
+        <div class="flashcard" id="flashcard">
+
+            <div class="face front">
+                <div class="lang" id="frontLang"></div>
+                <div class="term" id="frontTerm"></div>
+                <div class="hint">Click to flip</div>
+            </div>
+
+            <div class="face back">
+                <div class="lang" id="backLang"></div>
+                <div class="term" id="backTerm"></div>
+                <div class="hint">Click to return</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="prevCard()">
+            <span class="button-en">Previous</span>
+        </button>
+
+        <button id="nextBtn" onclick="nextCard()">
+            <span class="button-en">Next</span>
+        </button>
+
+        <button onclick="showHome()">
+            <span class="button-en">Home</span>
+        </button>
+    </div>
+
+</div>
+
+<div id="matchMode" class="hidden">
+
+    <div class="match-card" id="matchCard">
+
+        <div class="victory-message">
+            <div class="victory-en">CONGRATULATIONS!</div>
+            <div class="victory-es">¡ENHORABUENA!</div>
+            <div class="victory-score" id="victoryScore">10 / 10 MATCHED</div>
+        </div>
+
+        <div class="match-title">Match the concepts / Une los conceptos</div>
+
+        <div class="match-status" id="matchStatus"></div>
+
+        <div class="match-grid">
+            <div class="match-column">
+                <div class="match-heading en">English</div>
+                <div id="englishList"></div>
+            </div>
+
+            <div class="match-column">
+                <div class="match-heading">Español</div>
+                <div id="spanishList"></div>
+            </div>
+        </div>
+
+        <div class="match-complete" id="matchComplete"></div>
+
+        <div class="controls">
+            <button onclick="restartFlashcards()">Back to flashcards</button>
+            <button onclick="startMatching()">Shuffle again</button>
+            <button onclick="showHome()">Home</button>
+        </div>
+
+    </div>
+
+</div>
+
+<div id="glossaryMode" class="hidden">
+
+    <div class="gl-search-wrap">
+        <input type="search" id="glSearch" placeholder="Buscar término / Search term..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button id="glClear" type="button" aria-label="Limpiar búsqueda / Clear search">×</button>
+    </div>
+
+    <div class="gl-filters" id="glFilters">
+        <button class="gl-pill active" data-section="all">All / Todo</button>
+    </div>
+
+    <div class="gl-stats" id="glStats">
+        Mostrando <span id="glCountVisible">0</span> de <span id="glCountTotal">0</span> términos
+        &nbsp;·&nbsp; Showing <span id="glCountVisible2">0</span> of <span id="glCountTotal2">0</span> terms
+    </div>
+
+    <div id="glMain"></div>
+
+    <div id="glNoResults">
+        <p>No se encontraron resultados / No results found</p>
+    </div>
+
+    <div class="controls gl-back">
+        <button onclick="showHome()">
+            <span class="button-en">Home / Inicio</span>
+        </button>
+    </div>
+
+</div>
+
+</div>
+
+<script>
+/* =========================
+   GLOSSARY DATA
+   (shared source for the glossary view AND the flashcards)
+   pairs are stored as [es, en]
+   ========================= */
+
+const GLOSSARY=[
+  { id:"general-digital", label:"General", title:"General Digital / Lo Digital en General", entries:[
+    ["Digital","Digital"],["En línea / Online","Online"],["Fuera de línea / Offline","Offline"],
+    ["Plataforma","Platform"],["Aplicación / App","Application / App"],["Interfaz de usuario","User Interface (UI)"],
+    ["Experiencia de usuario","User Experience (UX)"],["Accesibilidad","Accessibility"],["Usabilidad","Usability"],
+    ["Responsive / Adaptable","Responsive"],["Móvil primero","Mobile First"],["Nativo (app)","Native (app)"],
+    ["Híbrido (app)","Hybrid (app)"],["Navegador","Browser"],["Dispositivo","Device"],["Escritorio / Desktop","Desktop"]
+  ]},
+  { id:"acciones", label:"Acciones", title:"Acciones Digitales / Digital Actions", entries:[
+    ["Iniciar sesión","Log in"],["Cerrar sesión","Log out"],["Crear una cuenta","Create an account"],
+    ["Registrarse","Sign up"],["Rellenar un formulario","Fill out a form"],["Enviar (un formulario)","Submit"],
+    ["Hacer clic","Click"],["Hacer doble clic","Double-click"],["Hacer clic derecho","Right-click"],
+    ["Tocar (pantalla táctil)","Tap"],["Mantener pulsado","Long-press / Press and hold"],["Desplazarse / hacer scroll","Scroll"],
+    ["Deslizar","Swipe"],["Arrastrar y soltar","Drag and drop"],["Hacer zoom / acercar","Zoom in"],
+    ["Alejar / reducir el zoom","Zoom out"],["Pellizcar para hacer zoom","Pinch to zoom"],["Seleccionar","Select"],
+    ["Marcar la casilla","Check the box"],["Desmarcar la casilla","Uncheck the box"],["Copiar","Copy"],
+    ["Pegar","Paste"],["Cortar","Cut"],["Deshacer","Undo"],["Rehacer","Redo"],["Guardar","Save"],
+    ["Guardar como","Save as"],["Descargar","Download"],["Subir / cargar (un archivo)","Upload"],
+    ["Adjuntar un archivo","Attach a file"],["Abrir un enlace","Open a link"],["Abrir una pestaña nueva","Open a new tab"],
+    ["Cerrar una pestaña","Close a tab"],["Cerrar la ventana","Close the window"],["Minimizar","Minimize"],
+    ["Maximizar","Maximize"],["Actualizar / refrescar la página","Refresh the page"],["Buscar","Search"],
+    ["Filtrar","Filter"],["Ordenar","Sort"],["Activar","Turn on / Enable"],["Desactivar","Turn off / Disable"],
+    ["Instalar","Install"],["Desinstalar","Uninstall"],["Actualizar (el software)","Update"],["Reiniciar","Restart"],
+    ["Apagar","Shut down"],["Encender","Turn on"],["Conectar","Connect"],["Desconectar","Disconnect"],
+    ["Sincronizar","Sync"],["Restablecer la contraseña","Reset the password"],["Cambiar la contraseña","Change the password"],
+    ["Verificar el correo electrónico","Verify the email"],["Habilitar la verificación en dos pasos","Enable two-factor authentication (2FA)"],
+    ["Bloquear","Block"],["Silenciar","Mute"],["Denunciar / reportar","Report"],["Compartir pantalla","Share screen"],
+    ["Grabar la pantalla","Record the screen"],["Hacer una captura de pantalla","Take a screenshot"],["Escribir / teclear","Type"],
+    ["Pulsar una tecla","Press a key"],["Arrastrar el cursor","Drag the cursor"],["Marcar como favorito / guardar","Bookmark"],
+    ["Fijar (un mensaje, una pestaña)","Pin"],["Anclar en la parte superior","Pin to top"],["Archivar","Archive"],
+    ["Eliminar / borrar","Delete"],["Restaurar","Restore"],["Vaciar la papelera","Empty the trash"],["Exportar","Export"],
+    ["Importar","Import"],["Duplicar","Duplicate"],["Renombrar","Rename"]
+  ]},
+  { id:"web", label:"Web & Dev", title:"Web & Desarrollo / Web & Development", entries:[
+    ["Sitio web","Website"],["Página de aterrizaje","Landing Page"],["Página de inicio","Homepage"],["Dominio","Domain"],
+    ["URL","URL (Uniform Resource Locator)"],["Alojamiento web","Web Hosting"],["Servidor","Server"],["Backend","Backend"],
+    ["Frontend","Frontend"],["Base de datos","Database"],["API","API (Application Programming Interface)"],
+    ["Código fuente","Source Code"],["Desarrollo ágil","Agile Development"],["Versión beta","Beta Version"],
+    ["Control de versiones","Version Control"],["Integración continua","Continuous Integration (CI)"],["Despliegue","Deployment"],
+    ["Entorno de pruebas","Testing Environment / Staging"],["Caché","Cache"],["Cookie","Cookie"]
+  ]},
+  { id:"marketing", label:"Marketing", title:"Marketing Digital / Digital Marketing", entries:[
+    ["Marketing digital","Digital Marketing"],["Marketing de contenidos","Content Marketing"],["Marketing de influencers","Influencer Marketing"],
+    ["Marketing de afiliados","Affiliate Marketing"],["Marketing por correo electrónico","Email Marketing"],["Marketing entrante","Inbound Marketing"],
+    ["Marketing saliente","Outbound Marketing"],["Embudo de ventas","Sales Funnel"],["Recorrido del cliente","Customer Journey"],
+    ["Punto de contacto","Touchpoint"],["Propuesta de valor","Value Proposition"],["Público objetivo","Target Audience"],
+    ["Segmentación","Segmentation"],["Posicionamiento de marca","Brand Positioning"],["Identidad de marca","Brand Identity"],
+    ["Notoriedad de marca","Brand Awareness"],["Reconocimiento de marca","Brand Recognition"],["Estrategia de contenido","Content Strategy"],
+    ["Calendario editorial","Editorial Calendar"],["Automatización de marketing","Marketing Automation"]
+  ]},
+  { id:"seo", label:"SEO", title:"SEO & Contenido / SEO & Content", entries:[
+    ["Posicionamiento en buscadores","Search Engine Optimization (SEO)"],["Palabra clave","Keyword"],["Palabra clave de cola larga","Long-tail Keyword"],
+    ["Intención de búsqueda","Search Intent"],["Volumen de búsqueda","Search Volume"],["Dificultad de palabra clave","Keyword Difficulty"],
+    ["SEO en página","On-page SEO"],["SEO técnico","Technical SEO"],["SEO fuera de página","Off-page SEO"],["Enlace de retroceso","Backlink"],
+    ["Autoridad de dominio","Domain Authority (DA)"],["Texto ancla","Anchor Text"],["Mapa del sitio","Sitemap"],["Robots.txt","Robots.txt"],
+    ["Etiqueta de título","Title Tag"],["Meta descripción","Meta Description"],["Datos estructurados","Structured Data / Schema"],
+    ["Velocidad de página","Page Speed"],["Experiencia de página","Page Experience"],["Señales de usuario","User Signals"]
+  ]},
+  { id:"social", label:"Social Media", title:"Redes Sociales / Social Media", entries:[
+    ["Redes sociales","Social Media"],["Publicación","Post"],["Historia","Story"],["Reel / Video corto","Reel / Short Video"],
+    ["Hilo","Thread"],["Hashtag (#)","Hashtag (#)"],["Mención","Mention"],["Nombre de usuario","Handle / Username"],["Etiqueta","Tag"],
+    ["Seguidor","Follower"],["Alcance","Reach"],["Alcance orgánico","Organic Reach"],["Impresiones","Impressions"],
+    ["Interacción / Engagement","Engagement"],["Tasa de interacción","Engagement Rate"],["Me gusta","Like"],["Compartir","Share"],
+    ["Comentario","Comment"],["Guardar (publicación)","Save"],["Viralidad","Virality"],["Comunidad en línea","Online Community"],
+    ["Gestión de comunidades","Community Management"],["Escucha social","Social Listening"],["Monitorización de marca","Brand Monitoring"]
+  ]},
+  { id:"analytics", label:"Analytics", title:"Analytics & Métricas / Analytics & Metrics", entries:[
+    ["Analítica web","Web Analytics"],["Indicador clave de rendimiento","Key Performance Indicator (KPI)"],["Métrica","Metric"],
+    ["Panel de control","Dashboard"],["Tráfico web","Web Traffic"],["Tráfico orgánico","Organic Traffic"],["Fuente de tráfico","Traffic Source"],
+    ["Sesión","Session"],["Usuario único","Unique User"],["Páginas vistas","Pageviews"],["Tasa de rebote","Bounce Rate"],
+    ["Tiempo en página","Time on Page"],["Profundidad de desplazamiento","Scroll Depth"],["Tasa de conversión","Conversion Rate (CR)"],
+    ["Embudo de conversión","Conversion Funnel"],["Objetivo","Goal"],["Evento (analítica)","Event (analytics)"],["Seguimiento","Tracking"],
+    ["Etiqueta (tag)","Tag"],["Píxel de seguimiento","Tracking Pixel"],["Atribución","Attribution"],["Modelo de atribución","Attribution Model"],
+    ["Prueba A/B","A/B Test"],["Test multivariante","Multivariate Test"],["Cohorte","Cohort"],["Segmento","Segment"],["Informe","Report"],
+    ["Cuadro de mando","Scorecard"]
+  ]},
+  { id:"paid", label:"Paid Media", title:"Paid Media & Publicidad / Paid Media & Advertising", entries:[
+    ["Medios pagados","Paid Media"],["Publicidad digital","Digital Advertising"],["Anuncio","Ad / Advertisement"],["Campaña","Campaign"],
+    ["Conjunto de anuncios","Ad Set"],["Creatividad publicitaria","Ad Creative"],["Texto del anuncio","Ad Copy"],["Puja","Bid"],
+    ["Presupuesto","Budget"],["Coste por clic","Cost Per Click (CPC)"],["Coste por mil impresiones","Cost Per Mille (CPM)"],
+    ["Coste por adquisición","Cost Per Acquisition (CPA)"],["Retorno de la inversión publicitaria","Return on Ad Spend (ROAS)"],
+    ["Retorno de la inversión","Return on Investment (ROI)"],["Subasta de anuncios","Ad Auction"],["Puntuación de calidad","Quality Score"],
+    ["Frecuencia","Frequency"],["Límite de frecuencia","Frequency Cap"],["Red de display","Display Network"],
+    ["Remarketing / Retargeting","Remarketing / Retargeting"],["Segmentación por audiencia","Audience Targeting"],
+    ["Público similar","Lookalike Audience"],["Exclusión de audiencia","Audience Exclusion"]
+  ]},
+  { id:"ecommerce", label:"E-commerce", title:"E-commerce & Conversión / E-commerce & Conversion", entries:[
+    ["Comercio electrónico","E-commerce"],["Tienda en línea","Online Store"],["Carrito de compra","Shopping Cart"],["Proceso de pago","Checkout"],
+    ["Pasarela de pago","Payment Gateway"],["Pedido","Order"],["Factura","Invoice"],["Devolución","Return / Refund"],
+    ["Tasa de abandono de carrito","Cart Abandonment Rate"],["Valor medio del pedido","Average Order Value (AOV)"],
+    ["Valor del ciclo de vida del cliente","Customer Lifetime Value (CLV / LTV)"],["Coste de adquisición de cliente","Customer Acquisition Cost (CAC)"],
+    ["Optimización de la tasa de conversión","Conversion Rate Optimization (CRO)"],["Cuello de botella","Bottleneck"],
+    ["Llamada a la acción","Call to Action (CTA)"],["Botón de llamada a la acción","CTA Button"],["Formulario de captación","Lead Capture Form"],
+    ["Página de agradecimiento","Thank You Page"],["Upselling","Upselling"],["Venta cruzada","Cross-selling"]
+  ]},
+  { id:"email", label:"Email", title:"Email Marketing", entries:[
+    ["Lista de correo","Mailing List"],["Suscriptor","Subscriber"],["Tasa de apertura","Open Rate"],["Tasa de clics en email","Click-through Rate (CTR)"],
+    ["Tasa de cancelación de suscripción","Unsubscribe Rate"],["Tasa de rebote de email","Email Bounce Rate"],["Spam / Correo no deseado","Spam / Junk Mail"],
+    ["Doble confirmación","Double Opt-in"],["Segmentación de lista","List Segmentation"],["Automatización de correo","Email Automation"],
+    ["Secuencia de bienvenida","Welcome Sequence"],["Correo de recuperación","Re-engagement Email"],["Plantilla de correo","Email Template"],
+    ["Remitente","Sender"],["Asunto del correo","Subject Line"],["Preencabezado","Preheader"],["Capacidad de entrega","Deliverability"],
+    ["Lista negra","Blacklist"]
+  ]},
+  { id:"data", label:"Datos", title:"Datos & Privacidad / Data & Privacy", entries:[
+    ["Dato / Dato personal","Data / Personal Data"],["Conjunto de datos","Dataset"],["Big Data","Big Data"],["Minería de datos","Data Mining"],
+    ["Visualización de datos","Data Visualization"],["Inteligencia artificial","Artificial Intelligence (AI)"],["Aprendizaje automático","Machine Learning (ML)"],
+    ["Algoritmo","Algorithm"],["Reglamento General de Protección de Datos","General Data Protection Regulation (GDPR)"],["Protección de datos","Data Protection"],
+    ["Consentimiento","Consent"],["Política de privacidad","Privacy Policy"],["Datos propios (first-party)","First-party Data"],
+    ["Datos de terceros","Third-party Data"],["Cookie de terceros","Third-party Cookie"],["Anonimización de datos","Data Anonymization"],
+    ["Brecha de datos","Data Breach"],["Ciberseguridad","Cybersecurity"]
+  ]},
+  { id:"saas", label:"SaaS", title:"SaaS & Herramientas / SaaS & Tools", entries:[
+    ["Software como servicio","Software as a Service (SaaS)"],["Nube / Cloud","Cloud"],["Suscripción","Subscription"],["Prueba gratuita","Free Trial"],
+    ["Modelo freemium","Freemium Model"],["Plan de precios","Pricing Plan"],["Integración","Integration"],["Complemento / Plugin","Plugin / Add-on"],
+    ["Panel de administración","Admin Panel"],["Acceso de usuario","User Access"],["Rol de usuario","User Role"],["Incorporación de usuarios","User Onboarding"],
+    ["Tasa de abandono (SaaS)","Churn Rate"],["Ingresos recurrentes mensuales","Monthly Recurring Revenue (MRR)"],
+    ["Ingresos recurrentes anuales","Annual Recurring Revenue (ARR)"],["Satisfacción del cliente","Customer Satisfaction (CSAT)"],
+    ["Puntuación neta del promotor","Net Promoter Score (NPS)"]
+  ]},
+  { id:"project", label:"Proyectos", title:"Gestión de Proyectos / Project Management", entries:[
+    ["Gestión de proyectos","Project Management"],["Hoja de ruta","Roadmap"],["Hito","Milestone"],["Entregable","Deliverable"],
+    ["Plazo / Fecha límite","Deadline"],["Partes interesadas","Stakeholders"],["Reunión de lanzamiento","Kickoff Meeting"],
+    ["Resumen ejecutivo","Executive Summary / Brief"],["Alcance del proyecto","Project Scope"],["Control de cambios","Change Management"],
+    ["Riesgo","Risk"],["Dependencia","Dependency"],["Sprint","Sprint"],["Retrospectiva","Retrospective"],["Tablero Kanban","Kanban Board"],
+    ["Cuello de botella (proceso)","Bottleneck (process)"],["Capacidad","Capacity"],["Priorización","Prioritization"]
+  ]},
+  { id:"comms", label:"Comunicación", title:"Comunicación Profesional / Professional Communication", entries:[
+    ["Reunión de sincronización","Sync Meeting"],["Actualización de estado","Status Update"],["Seguimiento","Follow-up"],
+    ["Resumen de reunión","Meeting Summary"],["Acta de reunión","Minutes of Meeting (MOM)"],["Orden del día","Agenda"],
+    ["Acción a realizar","Action Item"],["Responsable","Owner / Responsible"],["Plazo de entrega","Turnaround Time (TAT)"],
+    ["Fuera de oficina","Out of Office (OOO)"],["Copia en el correo","CC (Carbon Copy)"],["Copia oculta","BCC (Blind Carbon Copy)"],
+    ["Adjunto","Attachment"],["Hilo de conversación","Thread"],["Canal de comunicación","Communication Channel"],["Retroalimentación","Feedback"],
+    ["Aprobación","Approval / Sign-off"],["Revisión","Review / Revision"],["Versión final","Final Version"]
+  ]},
+  { id:"simbolos", label:"Símbolos", title:"Símbolos & Operadores / Symbols & Operators", entries:[
+    ["@ — arroba","@ — at sign / at symbol"],["# — almohadilla / numeral / hashtag","# — hash / pound sign / hashtag"],
+    ["% — porcentaje","% — percent sign"],["& — ampersand / y comercial","& — ampersand"],["* — asterisco","* — asterisk"],
+    ["/ — barra diagonal","/ — slash / forward slash"],["\\ — barra invertida","\\ — backslash"],["| — barra vertical / pleca","| — pipe / vertical bar"],
+    ["- — guion / menos","- — hyphen / minus sign"],["_ — guion bajo","_ — underscore"],["~ — virgulilla / tilde","~ — tilde"],
+    [". — punto",". — dot / period / full stop"],[", — coma",", — comma"],["; — punto y coma","; — semicolon"],[": — dos puntos",": — colon"],
+    ["! — signo de exclamación (cierre)","! — exclamation mark"],["¡ — signo de exclamación (apertura)","¡ — inverted exclamation mark (Spanish only)"],
+    ["? — signo de interrogación (cierre)","? — question mark"],["¿ — signo de interrogación (apertura)","¿ — inverted question mark (Spanish only)"],
+    ["\" \" — comillas dobles","\" \" — double quotation marks"],["' ' — comilla simple / apóstrofe","' ' — single quote / apostrophe"],
+    ["« » — comillas angulares / latinas","« » — angle quotes / guillemets"],["… — puntos suspensivos","… — ellipsis"],
+    ["( ) — paréntesis","( ) — parentheses / round brackets"],["[ ] — corchetes","[ ] — square brackets"],["{ } — llaves","{ } — curly brackets / braces"],
+    ["< > — corchetes angulares","< > — angle brackets / chevrons"],["+ — más","+ — plus sign"],["= — igual","= — equals sign"],
+    ["≠ — distinto / no igual","≠ — not equal to"],["> — mayor que","> — greater than"],["< — menor que","< — less than"],
+    ["≥ — mayor o igual que","≥ — greater than or equal to"],["≤ — menor o igual que","≤ — less than or equal to"],
+    ["^ — acento circunflejo / caret","^ — caret / circumflex"],["° — grado","° — degree sign"],["€ — euro","€ — euro sign"],
+    ["$ — dólar","$ — dollar sign"],["£ — libra esterlina","£ — pound sterling sign"],["¥ — yen / yuan","¥ — yen / yuan sign"],
+    ["© — copyright / derechos de autor","© — copyright symbol"],["® — marca registrada","® — registered trademark"],["™ — marca comercial","™ — trademark symbol"],
+    ["→ — flecha derecha","→ — right arrow"],["← — flecha izquierda","← — left arrow"],["↑ — flecha arriba","↑ — up arrow"],
+    ["↓ — flecha abajo","↓ — down arrow"],["↔ — flecha bidireccional horizontal","↔ — left-right arrow"],["• — viñeta / punto de lista","• — bullet point"],
+    ["– — raya corta","– — en dash"],["' — acento / tilde (en teclado)","' — accent / diacritic key"],["´ — acento agudo","´ — acute accent"],
+    ["` — acento grave / backtick","` — grave accent / backtick"],["¨ — diéresis","¨ — diaeresis / umlaut"],["ñ — eñe (letra española)","ñ — ñ (Spanish letter)"],
+    ["á é í ó ú — vocales con tilde","á é í ó ú — vowels with acute accent"],["ü — u con diéresis","ü — u with umlaut"]
+  ]}
+];
+
+
+/* =========================
+   SHARED HELPERS
+   ========================= */
+
+function shuffleList(list){
+    return [...list].sort(()=>Math.random()-0.5);
+}
+
+function sampleArray(arr,n){
+    return shuffleList(arr).slice(0,Math.min(n,arr.length));
+}
+
+function getCategoryEntries(id){
+    const section=GLOSSARY.find(s=>s.id===id);
+    return section ? section.entries : GLOSSARY.flatMap(s=>s.entries);
+}
+
+
+/* =========================
+   FLASHCARDS STATE
+   ========================= */
+
+let cards=[];
+let currentIndex=0;
+let direction="en-es";
+let isFlipped=false;
+let isChanging=false;
+
+let selectedEnglish=null;
+let selectedSpanish=null;
+let matchedCount=0;
+
+let selectedCategory=GLOSSARY[0].id;
+
+const SESSION_SIZE=10;
+
+
+/* =========================
+   HOME / CATEGORY PICKER
+   ========================= */
+
+function buildCatPills(){
+    const wrap=document.getElementById("catPills");
+    wrap.innerHTML="";
+
+    GLOSSARY.forEach(section=>{
+        const pill=document.createElement("button");
+        pill.className="cat-pill"+(section.id===selectedCategory ? " active" : "");
+        pill.textContent=section.label;
+        pill.dataset.cat=section.id;
+        pill.onclick=()=>selectCategory(section.id);
+        wrap.appendChild(pill);
+    });
+}
+
+function selectCategory(id){
+    selectedCategory=id;
+
+    document.querySelectorAll(".cat-pill").forEach(p=>{
+        p.classList.toggle("active", p.dataset.cat===id);
+    });
+
+    updatePreview();
+}
+
+function updatePreview(){
+    const entries=getCategoryEntries(selectedCategory);
+    const [es,en]=entries[Math.floor(Math.random()*entries.length)];
+
+    document.getElementById("previewTerm").textContent=en;
+    document.getElementById("previewPair").textContent=es;
+}
+
+function prepareSession(){
+    const entries=getCategoryEntries(selectedCategory);
+    const chosen=sampleArray(entries, SESSION_SIZE);
+
+    cards=chosen.map(([es,en])=>({es,en}));
+    currentIndex=0;
+
+    selectedEnglish=null;
+    selectedSpanish=null;
+    matchedCount=0;
+}
+
+
+/* =========================
+   RENDER FLASHCARD
+   ========================= */
+
+function render(enterClass=""){
+
+    const card=cards[currentIndex];
+
+    const frontLang=document.getElementById("frontLang");
+    const backLang=document.getElementById("backLang");
+    const frontTerm=document.getElementById("frontTerm");
+    const backTerm=document.getElementById("backTerm");
+    const counter=document.getElementById("counter");
+    const flashcard=document.getElementById("flashcard");
+    const frontFace=document.querySelector(".face.front");
+    const backFace=document.querySelector(".face.back");
+
+    isFlipped=false;
+    flashcard.className="flashcard";
+
+    if(enterClass){
+        flashcard.classList.add(enterClass);
+    }
+
+    frontFace.classList.remove("en-face","es-face");
+    backFace.classList.remove("en-face","es-face");
+
+    counter.textContent=`${currentIndex+1} / ${cards.length}`;
+
+    document.getElementById("nextBtn").querySelector(".button-en").textContent=
+        currentIndex===cards.length-1 ? "Final match" : "Next";
+
+    if(direction==="en-es"){
+
+        frontFace.classList.add("en-face");
+        backFace.classList.add("es-face");
+
+        frontLang.textContent="🇬🇧";
+        frontLang.className="lang en";
+        frontTerm.textContent=card.en;
+        frontTerm.className="term en";
+
+        backLang.textContent="🇪🇸";
+        backLang.className="lang es";
+        backTerm.textContent=card.es;
+        backTerm.className="term es";
+
+    }else{
+
+        frontFace.classList.add("es-face");
+        backFace.classList.add("en-face");
+
+        frontLang.textContent="🇪🇸";
+        frontLang.className="lang es";
+        frontTerm.textContent=card.es;
+        frontTerm.className="term es";
+
+        backLang.textContent="🇬🇧";
+        backLang.className="lang en";
+        backTerm.textContent=card.en;
+        backTerm.className="term en";
+    }
+
+    document.getElementById("enEs").classList.toggle("active", direction==="en-es");
+    document.getElementById("esEn").classList.toggle("active", direction==="es-en");
+}
+
+
+/* =========================
+   FLASHCARD CLICK / FLIP
+   ========================= */
+
+const flashcardEl=document.getElementById("flashcard");
+
+let touchStartX=0;
+let touchStartY=0;
+let suppressClickUntil=0;
+
+flashcardEl.addEventListener("click",()=>{
+    if(Date.now()<suppressClickUntil) return;
+    flipCard();
+});
+
+function flipCard(){
+    isFlipped=!isFlipped;
+    flashcardEl.classList.toggle("flipped", isFlipped);
+}
+
+
+/* =========================
+   MOBILE SWIPE
+   ========================= */
+
+flashcardEl.addEventListener("touchstart",(event)=>{
+    if(event.touches.length!==1) return;
+    touchStartX=event.touches[0].clientX;
+    touchStartY=event.touches[0].clientY;
+},{passive:true});
+
+flashcardEl.addEventListener("touchend",(event)=>{
+    if(event.changedTouches.length!==1) return;
+
+    const touchEndX=event.changedTouches[0].clientX;
+    const touchEndY=event.changedTouches[0].clientY;
+    const deltaX=touchEndX-touchStartX;
+    const deltaY=touchEndY-touchStartY;
+
+    if(Math.abs(deltaX)<50 || Math.abs(deltaX)<=Math.abs(deltaY)) return;
+
+    suppressClickUntil=Date.now()+700;
+
+    if(deltaX<0){ nextCard(); } else { prevCard(); }
+},{passive:true});
+
+
+/* =========================
+   CARD NAVIGATION
+   ========================= */
+
+function nextCard(){
+    if(currentIndex===cards.length-1){
+        showMatchExercise();
+        return;
+    }
+    changeCard(1);
+}
+
+function prevCard(){
+    if(currentIndex===0) return;
+    changeCard(-1);
+}
+
+function changeCard(step){
+    if(isChanging) return;
+    isChanging=true;
+
+    const shell=document.querySelector(".card-shell");
+    const fc=document.getElementById("flashcard");
+
+    shell.classList.add("portal-burst");
+    fc.classList.remove("flipped");
+    isFlipped=false;
+
+    fc.classList.add(step>0 ? "exit-next" : "exit-prev");
+
+    setTimeout(()=>{
+        currentIndex=(currentIndex+step+cards.length)%cards.length;
+        render(step>0 ? "enter-next" : "enter-prev");
+    },440);
+
+    setTimeout(()=>{
+        document.getElementById("flashcard").classList.remove("enter-next","enter-prev");
+        shell.classList.remove("portal-burst");
+        isChanging=false;
+    },980);
+}
+
+function setDirection(value){
+    if(isChanging) return;
+    direction=value;
+    render();
+}
+
+
+/* =========================
+   HOME / NAV
+   ========================= */
+
+function startFromPreview(event){
+    if(event.key==="Enter" || event.key===" "){
+        event.preventDefault();
+        startFlashcards();
+    }
+}
+
+function showHome(){
+    document.getElementById("homeMode").classList.remove("hidden");
+    document.getElementById("flashMode").classList.add("hidden");
+    document.getElementById("matchMode").classList.add("hidden");
+    document.getElementById("glossaryMode").classList.add("hidden");
+
+    document.getElementById("navFlash").classList.add("active");
+    document.getElementById("navGlossary").classList.remove("active");
+}
+
+function showGlossary(){
+    document.getElementById("homeMode").classList.add("hidden");
+    document.getElementById("flashMode").classList.add("hidden");
+    document.getElementById("matchMode").classList.add("hidden");
+    document.getElementById("glossaryMode").classList.remove("hidden");
+
+    document.getElementById("navFlash").classList.remove("active");
+    document.getElementById("navGlossary").classList.add("active");
+}
+
+function startFlashcards(){
+    prepareSession();
+
+    document.getElementById("homeMode").classList.add("hidden");
+    document.getElementById("matchMode").classList.add("hidden");
+    document.getElementById("glossaryMode").classList.add("hidden");
+    document.getElementById("flashMode").classList.remove("hidden");
+
+    render();
+}
+
+function startMatchFromHome(){
+    prepareSession();
+    showMatchExercise();
+}
+
+function showMatchExercise(){
+    document.getElementById("homeMode").classList.add("hidden");
+    document.getElementById("flashMode").classList.add("hidden");
+    document.getElementById("glossaryMode").classList.add("hidden");
+    document.getElementById("matchMode").classList.remove("hidden");
+
+    startMatching();
+}
+
+function restartFlashcards(){
+    currentIndex=0;
+
+    document.getElementById("homeMode").classList.add("hidden");
+    document.getElementById("matchMode").classList.add("hidden");
+    document.getElementById("glossaryMode").classList.add("hidden");
+    document.getElementById("flashMode").classList.remove("hidden");
+
+    render();
+}
+
+
+/* =========================
+   MATCHING
+   ========================= */
+
+function startMatching(){
+
+    selectedEnglish=null;
+    selectedSpanish=null;
+    matchedCount=0;
+
+    const matchCard=document.getElementById("matchCard");
+    matchCard.classList.remove("victory");
+
+    const englishList=document.getElementById("englishList");
+    const spanishList=document.getElementById("spanishList");
+
+    englishList.innerHTML="";
+    spanishList.innerHTML="";
+
+    document.getElementById("matchComplete").textContent="";
+    document.getElementById("victoryScore").textContent=`${cards.length} / ${cards.length} MATCHED`;
+
+    updateMatchStatus();
+
+    shuffleList(cards).forEach((card)=>{
+        englishList.innerHTML+=`
+            <button class="match-item" data-side="en" data-key="${card.en}" onclick="selectMatch(this)">
+                ${card.en}
+            </button>
+        `;
+    });
+
+    shuffleList(cards).forEach((card)=>{
+        spanishList.innerHTML+=`
+            <button class="match-item" data-side="es" data-key="${card.en}" onclick="selectMatch(this)">
+                ${card.es}
+            </button>
+        `;
+    });
+}
+
+function selectMatch(el){
+
+    if(el.classList.contains("matched")) return;
+
+    const side=el.dataset.side;
+
+    clearWrong();
+
+    if(side==="en"){
+        if(selectedEnglish) selectedEnglish.classList.remove("selected");
+        selectedEnglish=el;
+    }else{
+        if(selectedSpanish) selectedSpanish.classList.remove("selected");
+        selectedSpanish=el;
+    }
+
+    el.classList.add("selected");
+
+    if(selectedEnglish && selectedSpanish){
+        checkMatch();
+    }
+}
+
+function checkMatch(){
+
+    const isCorrect=selectedEnglish.dataset.key===selectedSpanish.dataset.key;
+
+    if(isCorrect){
+
+        selectedEnglish.classList.remove("selected");
+        selectedSpanish.classList.remove("selected");
+        selectedEnglish.classList.add("matched");
+        selectedSpanish.classList.add("matched");
+
+        matchedCount++;
+
+        selectedEnglish=null;
+        selectedSpanish=null;
+
+        updateMatchStatus();
+
+        if(matchedCount===cards.length){
+
+            const items=[...document.querySelectorAll(".match-item.matched")];
+
+            items.forEach((item)=>{
+                const angle=Math.random()*Math.PI*2;
+                const distance=180+Math.random()*300;
+                const x=Math.cos(angle)*distance;
+                const y=Math.sin(angle)*distance;
+                const r=-360+Math.random()*720;
+
+                item.style.setProperty("--x",x);
+                item.style.setProperty("--y",y);
+                item.style.setProperty("--r",`${r}deg`);
+            });
+
+            setTimeout(()=>{
+                document.getElementById("matchCard").classList.add("victory");
+            },180);
+        }
+
+    }else{
+
+        selectedEnglish.classList.add("wrong");
+        selectedSpanish.classList.add("wrong");
+
+        setTimeout(()=>{
+            if(selectedEnglish) selectedEnglish.classList.remove("selected","wrong");
+            if(selectedSpanish) selectedSpanish.classList.remove("selected","wrong");
+            selectedEnglish=null;
+            selectedSpanish=null;
+        },420);
+    }
+}
+
+function clearWrong(){
+    document.querySelectorAll(".match-item.wrong").forEach((item)=>{
+        item.classList.remove("wrong");
+    });
+}
+
+function updateMatchStatus(){
+    document.getElementById("matchStatus").textContent=`${matchedCount} / ${cards.length} matched`;
+}
+
+
+/* =========================
+   GLOSSARY VIEW (built once)
+   ========================= */
+
+(function buildGlossary(){
+
+    const glMain=document.getElementById("glMain");
+    const glFilters=document.getElementById("glFilters");
+    const glSearch=document.getElementById("glSearch");
+    const glClear=document.getElementById("glClear");
+    const glNoResults=document.getElementById("glNoResults");
+
+    let glTotal=0;
+    GLOSSARY.forEach(s=>glTotal+=s.entries.length);
+    document.getElementById("glCountTotal").textContent=glTotal;
+    document.getElementById("glCountTotal2").textContent=glTotal;
+
+    GLOSSARY.forEach((section,idx)=>{
+
+        const sec=document.createElement("div");
+        sec.className="gl-section";
+        sec.id=`gl-sec-${section.id}`;
+        sec.dataset.section=section.id;
+
+        sec.innerHTML=`
+            <div class="gl-section-header">
+                <span class="gl-section-num">#${idx+1}</span>
+                <span class="gl-section-title">${section.title}</span>
+                <span class="gl-section-count">${section.entries.length} términos</span>
+            </div>
+            <div class="gl-col-labels">
+                <span class="gl-col-label">🇪🇸 Español</span>
+                <span class="gl-col-label">🇬🇧 English</span>
+            </div>
+            <div class="gl-entries" id="gl-entries-${section.id}"></div>
+        `;
+        glMain.appendChild(sec);
+
+        const entriesEl=document.getElementById(`gl-entries-${section.id}`);
+
+        section.entries.forEach(([es,en])=>{
+            const div=document.createElement("div");
+            div.className="gl-entry";
+            div.dataset.es=es.toLowerCase();
+            div.dataset.en=en.toLowerCase();
+            div.innerHTML=`
+                <div class="gl-cell gl-cell-es">${es}</div>
+                <div class="gl-cell gl-cell-en">${en}</div>
+            `;
+            entriesEl.appendChild(div);
+        });
+
+        const pill=document.createElement("button");
+        pill.className="gl-pill";
+        pill.dataset.section=section.id;
+        pill.textContent=section.label;
+        glFilters.appendChild(pill);
+    });
+
+    let glActiveSection="all";
+    let glQuery="";
+
+    function glHighlight(text,query){
+        if(!query) return text;
+        const regex=new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');
+        return text.replace(regex,'<mark>$1</mark>');
+    }
+
+    function glUpdate(){
+        let visible=0;
+
+        GLOSSARY.forEach(section=>{
+            const secEl=document.getElementById(`gl-sec-${section.id}`);
+            const entries=secEl.querySelectorAll(".gl-entry");
+            let sectionVisible=0;
+
+            const sectionMatch=glActiveSection==="all" || glActiveSection===section.id;
+
+            entries.forEach(entry=>{
+                const esText=entry.dataset.es;
+                const enText=entry.dataset.en;
+                const matchSearch=!glQuery || esText.includes(glQuery) || enText.includes(glQuery);
+                const show=sectionMatch && matchSearch;
+
+                const esCell=entry.querySelector(".gl-cell-es");
+                const enCell=entry.querySelector(".gl-cell-en");
+                const esOrig=esCell.dataset.orig || (esCell.dataset.orig=esCell.textContent);
+                const enOrig=enCell.dataset.orig || (enCell.dataset.orig=enCell.textContent);
+
+                if(show){
+                    entry.classList.remove("hidden");
+                    esCell.innerHTML=glHighlight(esOrig,glQuery);
+                    enCell.innerHTML=glHighlight(enOrig,glQuery);
+                    sectionVisible++;
+                    visible++;
+                }else{
+                    entry.classList.add("hidden");
+                }
+            });
+
+            secEl.style.display=sectionVisible===0 ? "none" : "";
+        });
+
+        document.getElementById("glCountVisible").textContent=visible;
+        document.getElementById("glCountVisible2").textContent=visible;
+        glNoResults.style.display=visible===0 ? "block" : "none";
+    }
+
+    glSearch.addEventListener("input",()=>{
+        glQuery=glSearch.value.trim().toLowerCase();
+        glClear.classList.toggle("show", glQuery.length>0);
+        glUpdate();
+    });
+
+    glClear.addEventListener("click",()=>{
+        glSearch.value="";
+        glQuery="";
+        glClear.classList.remove("show");
+        glSearch.focus();
+        glUpdate();
+    });
+
+    glFilters.addEventListener("click",e=>{
+        const pill=e.target.closest(".gl-pill");
+        if(!pill) return;
+
+        document.querySelectorAll(".gl-pill").forEach(p=>p.classList.remove("active"));
+        pill.classList.add("active");
+        glActiveSection=pill.dataset.section;
+        glUpdate();
+
+        if(glActiveSection!=="all"){
+            const target=document.getElementById(`gl-sec-${glActiveSection}`);
+            if(target) target.scrollIntoView({behavior:"smooth", block:"start"});
+        }
+    });
+
+    glUpdate();
+})();
+
+
+/* =========================
+   INIT
+   ========================= */
+
+buildCatPills();
+updatePreview();
+</script>
+
+</body>
+</html>
