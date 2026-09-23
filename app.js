@@ -598,14 +598,26 @@ function generatePdf(){
     const originalLabel=btn.innerHTML;
     btn.innerHTML='<span class="button-en">Generando... / Generating...</span>';
 
+    // html2canvas needs the element to be visible and inside the normal
+    // viewport to render it correctly, so instead of hiding it off-screen
+    // (which produces a blank capture) we show it briefly as a full-page
+    // white overlay while the PDF is being generated.
+    const overlay=document.createElement("div");
+    overlay.style.position="fixed";
+    overlay.style.inset="0";
+    overlay.style.zIndex="99999";
+    overlay.style.background="#ffffff";
+    overlay.style.overflow="auto";
+
     const container=document.createElement("div");
-    container.style.position="fixed";
-    container.style.left="-9999px";
-    container.style.top="0";
     container.style.width="760px";
+    container.style.maxWidth="94vw";
+    container.style.margin="0 auto";
     container.style.background="#ffffff";
     container.style.color="#111";
     container.style.fontFamily="'Special Elite', monospace";
+
+    overlay.appendChild(container);
 
     let html=`
         <div style="text-align:center; padding:50px 40px 34px; border-bottom:4px solid #F8AC10;">
@@ -644,10 +656,10 @@ function generatePdf(){
     `;
 
     container.innerHTML=html;
-    document.body.appendChild(container);
+    document.body.appendChild(overlay);
 
     const restore=()=>{
-        document.body.removeChild(container);
+        document.body.removeChild(overlay);
         btn.dataset.busy="0";
         btn.innerHTML=originalLabel;
     };
