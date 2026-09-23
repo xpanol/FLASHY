@@ -586,6 +586,94 @@ function updateMatchStatus(){
 
 
 /* =========================
+   PDF EXPORT (full glossary, XPAÑOL style)
+   ========================= */
+
+function generatePdf(){
+
+    const btn=document.getElementById("pdfBtn");
+    if(btn.dataset.busy==="1") return;
+
+    btn.dataset.busy="1";
+    const originalLabel=btn.innerHTML;
+    btn.innerHTML='<span class="button-en">Generando... / Generating...</span>';
+
+    const container=document.createElement("div");
+    container.style.position="fixed";
+    container.style.left="-9999px";
+    container.style.top="0";
+    container.style.width="760px";
+    container.style.background="#ffffff";
+    container.style.color="#111";
+    container.style.fontFamily="'Special Elite', monospace";
+
+    let html=`
+        <div style="text-align:center; padding:50px 40px 34px; border-bottom:4px solid #F8AC10;">
+            <div style="font-size:44px; color:#F8AC10; letter-spacing:2px;">XPAÑOL</div>
+            <div style="font-size:19px; color:#111; margin-top:10px;">Glosario Digital &amp; Tech</div>
+            <div style="font-size:15px; color:#666; margin-top:4px;">Digital &amp; Tech Glossary &middot; ES &ndash; EN</div>
+        </div>
+    `;
+
+    GLOSSARY.forEach((section,idx)=>{
+        html+=`
+            <div style="padding:26px 40px 6px;">
+                <div style="display:flex; align-items:center; gap:10px; border-bottom:2px solid #F8AC10; padding-bottom:6px; margin-bottom:10px;">
+                    <span style="background:#F8AC10; color:#000; padding:2px 8px; font-size:12px;">#${idx+1}</span>
+                    <span style="color:#F8AC10; font-size:16px; text-transform:uppercase;">${section.title}</span>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        `;
+
+        section.entries.forEach(([es,en])=>{
+            html+=`
+                <tr>
+                    <td style="width:50%; padding:5px 8px; border-bottom:1px solid #eee; color:#111;">${es}</td>
+                    <td style="width:50%; padding:5px 8px; border-bottom:1px solid #eee; color:#555;">${en}</td>
+                </tr>
+            `;
+        });
+
+        html+=`</table></div>`;
+    });
+
+    html+=`
+        <div style="text-align:center; padding:34px; margin-top:14px; border-top:2px solid #F8AC10; color:#F8AC10; font-size:15px;">
+            www.xpanol.com
+        </div>
+    `;
+
+    container.innerHTML=html;
+    document.body.appendChild(container);
+
+    const restore=()=>{
+        document.body.removeChild(container);
+        btn.dataset.busy="0";
+        btn.innerHTML=originalLabel;
+    };
+
+    if(!window.jspdf || !window.html2canvas){
+        alert("No se pudo cargar la librería de PDF. Revisa tu conexión a internet e inténtalo de nuevo. / The PDF library could not be loaded. Check your internet connection and try again.");
+        restore();
+        return;
+    }
+
+    const { jsPDF }=window.jspdf;
+    const doc=new jsPDF("p","pt","a4");
+
+    doc.html(container,{
+        margin:[24,18,24,18],
+        autoPaging:"text",
+        html2canvas:{ scale:0.72, useCORS:true },
+        callback:function(pdf){
+            pdf.save("xpanol-glosario.pdf");
+            restore();
+        }
+    });
+}
+
+
+/* =========================
    INIT
    ========================= */
 
